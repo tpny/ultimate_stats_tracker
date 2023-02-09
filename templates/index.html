@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block hide_header %} hidden {% endblock %}
+{% block content %}
+<div class="jumbotron d-flex align-items-center min-vh-100">
+  <div class="container">
+    <hr>
+
+    <div class="row">
+      <div class="col-md-auto">
+        <h2>Teams</h2>
+        <p>In here you will create teams, and add, remove, transfer, rename players</p>
+        <p><a class="btn btn-primary" href="{{url_for('list_teams')}}" role="button">Manage Teams »</a></p>
+      </div>
+      <div class="col-md-auto">
+        <h2>Games</h2>
+        <p>In here you will create games, and record games</p>
+        <p><a class="btn btn-primary" href="{{url_for('list_games')}}" role="button">Manage Games »</a></p>
+      </div>
+    </div>
+
+    <hr>
+  </div>
+</div>
+{% endblock %}

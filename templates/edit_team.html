@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block list_teams_active %}active{% endblock %}
+{% block content %}
+<div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">
+    {{error}}
+</div>
+<form action="" method="post" class="text-center">
+  <h1>{{curr_team_name}}</h1>
+  <input type="text" name="new_name" placeholder="'s Team" required>
+  <input type="submit" name="button" value="Rename Team" >
+</form>
+<table class="table">
+  <thead>
+    <tr>
+    <th scope="col">Player</th>
+    <th scope="col">Player ID</th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+
+  <tr>
+  <form action="" method="post" class="text-center">
+    <th scope="row">
+      <input type="text" name="player_name" placeholder="" required>
+    </th>
+    <td></td>
+    <td>
+      <input type="submit" name="button" value="Add Player" >
+    </td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </form>
+  </tr>
+
+  {% for player, player_id in players %}
+  <tr>
+    <th scope="row">{{player}}</th>
+    <td>{{player_id}}</td>
+    <td>
+      <form action="" method="post" class="text-center">
+        <input type="hidden" name="player_name" value="{{player}}" >
+        <input type="submit" name="button" value="View Stats" >
+      </form>
+    </td>
+    <td>
+      <form action="" method="post" class="text-center">
+        <input type="hidden" name="player_name" value="{{player}}" >
+        <input type="text" name="new_name" placeholder="" required>
+        <input type="submit" name="button" value="Rename Player" >
+      </form>
+    </td>
+    <td>
+      <form action="" method="post" class="text-center">
+        <input type="hidden" name="player_name" value="{{player}}" >
+        <select name="new_team">
+          {% for team_name in team_names %}
+          <option value="{{team_name}}" {% if team_name == curr_team_name %} selected {% endif %}>{{team_name}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" name="button" value="Transfer Player" >
+      </form>
+    </td>
+    <td>
+      <form action="" method="post" class="text-center">
+        <input type="hidden" name="player_name" value="{{player}}" >
+        <input type="submit" name="button" value="Remove Player" >
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
