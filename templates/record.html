@@ -1,51 +1,55 @@
 {% extends "base.html" %}
 {% block list_games_active %}active{% endblock %}
+{% block list_manage_game %}Return to Manage Games{% endblock %}
 {% block content %}
-  <div class="d-flex flex-row justify-content-between">
-    <div class="vr"></div>
-    <div class="w-25 p-3">
-      <table class="table text-center ">
-        <thead>
-          <tr>
-            <th scope="col">Recent Plays</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for play in plays %}
+<h2 class="text-center">Recording for team {{team_name}}</h2>
+<hr>
+<div class="d-flex flex-row justify-content-between">
+  <div class="vr"></div>
+  <div class="w-25 p-3">
+    <table class="table text-center ">
+      <thead>
         <tr>
-          <td scope="row">{{play}}</td>
+          <th scope="col">Recent Plays</th>
         </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="vr"></div>
-    <div class="d-flex align-content-start flex-wrap w-50 m-3">
+      </thead>
+      <tbody>
+      {% for play in plays %}
+      <tr>
+        <td scope="row" class="{% if loop.index < 3 %} text-body-emphasis {% elif  loop.index < 7 %} text-body-secondary {% else %} text-body-tertiary {% endif %}">{{play}}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="vr"></div>
+  <div class="d-flex align-content-start flex-wrap w-50 m-3">
+    {% for player_id, player_name in players_in_team %}
+    <form action="" method="post">
+      <input type="hidden" name="button" value="{{player_id}}">
+      <input type="submit" name="btn" value="{{player_name}}" class ="btn btn-primary btn-lg btn-lg m-1" {% if player in invalid_moves %} disabled {% endif %}>
+    </form>
+    {% endfor %}
+  </div>
+  <div class="vr"></div>
+  <div class="d-flex flex-column text-center w-25 p-3">
+    <div class="row">
       <form action="" method="post">
-        {% for player in players %}
-        <input type="submit" name="button" value="{{player}}" class ="btn btn-primary btn-lg btn-lg m-1" {% if player in invalid_moves %} disabled {% endif %}>
+        {% for action in actions %}
+        <input type="submit" name="button" value="{{action}}" class ="form-control btn btn-secondary btn-lg btn-block" {% if action in invalid_moves %} disabled {% endif %}>
+        <br>
+        <br>
         {% endfor %}
+        <input type="submit" name="button" value="UNDO" class ="form-control btn btn-outline-warning btn-lg btn-block" {% if disable_undo %} disabled {% endif %}>
       </form>
     </div>
-    <div class="vr"></div>
-    <div class="d-flex flex-column text-center w-25 p-3">
-      <div class="row">
-        <form action="" method="post">
-          {% for action in actions %}
-          <input type="submit" name="button" value="{{action}}" class ="form-control btn btn-secondary btn-lg btn-block" {% if action in invalid_moves %} disabled {% endif %}>
-          <br>
-          <br>
-          {% endfor %}
-          <input type="submit" name="button" value="UNDO" class ="form-control btn btn-outline-warning btn-lg btn-block" {% if disable_undo %} disabled {% endif %}>
-        </form>
-      </div>
-    </div>
-    <div class="vr"></div>
   </div>
-  <br>
-  <hr>
-  <br>
-  <table class="table" {{hide_stats}}>
+  <div class="vr"></div>
+</div>
+<br>
+<hr>
+<br>
+<table class="table" {{hide_stats}}>
   <thead>
     <tr>
       <th scope="col" class="text-center">Player</th>

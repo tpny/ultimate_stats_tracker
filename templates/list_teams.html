@@ -4,43 +4,46 @@
 <div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">
     {{error}}
 </div>
-<table class="table">
-  <thead>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+      <th scope="col">Team Name</th>
+      <th scope="col">Team ID</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
     <tr>
-    <th scope="col">Team</th>
-    <th scope="col">Team ID</th>
-    <th scope="col"></th>
-    <th scope="col"></th>
+      <form action="" method="post" class="form-control">
+        <th scope="row">
+          <input type="text" name="team_name" placeholder="My Team" class="form-control" required>
+        </th>
+        <td></td>
+        <td></td>
+        <td>
+          <input type="submit" name="button" class="btn btn-primary" value="Create Team" >
+        </td>
+      </form>
     </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <form action="" method="post" class="text-center">
-      <th scope="row">
-        <input type="text" name="team_name" placeholder="My Team" required>
-      </th>
-      <td></td>
-      <td>
-        <input type="submit" name="button" value="Create Team" >
-      </td>
-    </form>
-  </tr>
-  {% for team_name in teams_to_id %}
-  <tr>
-    <form action="" method="post" class="text-center">
-      <th scope="row">{{team_name}}</th>
-      <td>{{teams_to_id[team_name]}}</td>
-      <td>
-        <input type="hidden" name="team_name" value="{{team_name}}" >
-        <input type="submit" name="button" value="View Stats" >
-      </td>
-      <td>
-        <input type="hidden" name="team_name" value="{{team_name}}" >
-        <input type="submit" name="button" value="Edit Team" >
-      </td>
-    </form>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
+    {% for team_name in teams_to_id %}
+    <tr>
+      <form action="" method="post" class="form-control">
+        <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{team_name}}"></th>
+        <td><input type="text" readonly class="form-control-plaintext" value="{{teams_to_id[team_name]}}"></td>
+        <td>
+          <input type="hidden" name="team_name" value="{{team_name}}" >
+          <input type="submit" name="button" class="btn btn-primary" value="View Stats" >
+        </td>
+        <td>
+          <input type="hidden" name="team_name" value="{{team_name}}" >
+          <input type="submit" name="button" class="btn btn-primary" value="Edit Team" >
+        </td>
+      </form>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}  

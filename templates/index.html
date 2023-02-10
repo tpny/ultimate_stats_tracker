@@ -4,20 +4,23 @@
 <div class="jumbotron d-flex align-items-center min-vh-100">
   <div class="container">
     <hr>
-
     <div class="row">
-      <div class="col-md-auto">
-        <h2>Teams</h2>
-        <p>In here you will create teams, and add, remove, transfer, rename players</p>
-        <p><a class="btn btn-primary" href="{{url_for('list_teams')}}" role="button">Manage Teams »</a></p>
-      </div>
-      <div class="col-md-auto">
-        <h2>Games</h2>
-        <p>In here you will create games, and record games</p>
-        <p><a class="btn btn-primary" href="{{url_for('list_games')}}" role="button">Manage Games »</a></p>
-      </div>
+      <h2>Teams</h2>
+      <p>In here you will create teams, and add, remove, transfer, rename players</p>
+      <p><a class="btn btn-primary" href="{{url_for('list_teams')}}" role="button">Manage Teams »</a></p>
     </div>
-
+    <hr>
+    <div class="row">
+      <h2>Games</h2>
+      <p>In here you will create games, and record games</p>
+      <p><a class="btn btn-primary" href="{{url_for('list_games')}}" role="button">Manage Games »</a></p>
+    </div>
+    <hr>
+    <div class="row">
+      <h2>Players</h2>
+      <p>In here you will create games, and rename and remove players</p>
+      <p><a class="btn btn-primary" href="{{url_for('list_players')}}" role="button">Manage Players »</a></p>
+    </div>
     <hr>
   </div>
 </div>

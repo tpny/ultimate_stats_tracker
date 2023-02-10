@@ -4,75 +4,71 @@
 <div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">
     {{error}}
 </div>
-<table class="table">
-  <thead>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+      <th scope="col">Game ID</th>
+      <th scope="col">Home Team</th>
+      <th scope="col">Away Team</th>
+      <th scope="col">Game Time</th>
+      <th scope="col">Note</th>
+      <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
     <tr>
-    <th scope="col">Game ID</th>
-    <th scope="col">Home Team</th>
-    <th scope="col">Away Team</th>
-    <th scope="col">Game Time</th>
-    <th scope="col">Notes</th>
-    <th scope="col"></th>
+      <form action="" method="post" class="form-control">
+        <th scope="row"></th>
+        <td>
+          <select name="home_team" class="form-select">
+            {% for team_name in team_names %}
+            <option value="{{team_name}}">{{team_name}}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <select name="away_team" class="form-select">
+            {% for team_name in team_names %}
+            <option value="{{team_name}}">{{team_name}}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <input type="datetime-local" class="form-control" name="game_time" required>
+        </td>
+        <td>
+          <input type="text" class="form-control" name="note" placeholder="Additonal notes">
+        </td>
+        <td>
+          <input type="submit" name="button" class="btn btn-primary" value="Create Game" >
+        </td>
+      </form>
     </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <form action="" method="post" class="text-center">
-      <th scope="row"></th>
-      <td>
-        <select name="home_team">
-          {% for team_name in team_names %}
-          <option value="{{team_name}}">{{team_name}}</option>
-          {% endfor %}
-        </select>
-      </td>
-      <td>
-        <select name="away_team">
-          {% for team_name in team_names %}
-          <option value="{{team_name}}">{{team_name}}</option>
-          {% endfor %}
-        </select>
-      </td>
-      <td>
-        <input type="datetime-local" name="game_time" required>
-      </td>
-      <td>
-        <input type="text" name="note" placeholder="Additonal notes">
-      </td>
-      <td>
-        <input type="submit" name="button" value="Create Game" >
-      </td>
-    </form>
-  </tr>
-  {% for game_id, home_team_id, away_team_id, notes, game_time in games %}
-  <tr>
-      <th scope="row">{{game_id}}</th>
-      <td>
-        {{id_to_teams[home_team_id]}}
-        <form action="" method="post">
+    {% for game_id, home_team_id, away_team_id, note, game_time in games %}
+    <tr>
+        <form action="" method="post" class="form-control">
           <input type="hidden" name="game_id" value="{{game_id}}" >
-          <input type="hidden" name="team_id" value="{{home_team_id}}" >
-          <input type="submit" name="button" value="Start Record" >
+          <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
+          <td>
+            {{id_to_teams[home_team_id|string]}}
+            <input type="hidden" name="team_id" value="{{home_team_id}}" >
+            <input type="submit" name="button" class="btn btn-primary" value="Start Record" >
+          </td>
+          <td>
+            {{id_to_teams[away_team_id|string]}}
+            <input type="hidden" name="team_id" value="{{away_team_id}}" >
+            <input type="submit" name="button" class="btn btn-primary" value="Start Record" >
+          </td>
+          <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
+          <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
+          <td>
+            <input type="submit" name="button" class="btn btn-primary" value="Game Stats" >
+          </td>
         </form>
-      </td>
-      <td>
-        {{id_to_teams[away_team_id]}}
-        <form action="" method="post">
-          <input type="hidden" name="game_id" value="{{game_id}}" >
-          <input type="hidden" name="team_id" value="{{away_team_id}}" >
-          <input type="submit" name="button" value="Start Record" >
-        </form>
-      </td>
-      <td>{{game_time}}</td>
-      <td>{{notes}}</td>
-      <td>
-        <form action="" method="post">
-        <input type="hidden" name="game_id" value="{{game_id}}" >
-        <!-- <input type="submit" name="button" value="Select Game" > -->
-        </form>
-      </td>
-  </tr>
-  {% endfor %}
-  </tbody>
-</table>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}
