@@ -33,7 +33,7 @@
       </th>
       <td></td>
       <td>
-        <input type="submit" name="button" class="btn btn-primary" value="Create New Player" >
+        <input type="submit" name="button" class="btn btn-primary form-control" value="Create New Player" >
       </td>
       <td></td>
       <td></td>
@@ -50,32 +50,32 @@
       </th>
       <td></td>
       <td>
-        <input type="submit" name="button" class="btn btn-primary" value="Add Existing Player" >
+        <input type="submit" name="button" class="btn btn-primary form-control" value="Add Existing Player" >
       </td>
       <td></td>
       <td></td>
     </form>
     </tr>
 
-    {% for player_id, player_name in players_with_id %}
+    {% for player_id, player_name, transferable_team in team_players_info %}
     <tr>
       <form action="" method="post"  class="form-control">
         <input type="hidden" name="player_id" value="{{player_id}}" >
         <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{player_name}}"></th>
         <td><input type="text" readonly class="form-control-plaintext" value="{{player_id}}"></td>
         <td>
-          <input type="submit" name="button" class="btn btn-primary" value="View Stats" >
+          <input type="submit" name="button" class="btn btn-primary form-control" value="View Stats" >
         </td>
         <td class="d-flex flex-nowrap">
           <select class="form-select form" name="new_team">
-            {% for team_name in team_names %}
+            {% for team_name in transferable_team %}
             <option value="{{team_name}}" {% if team_name == curr_team_name %} selected {% endif %}>{{team_name}}</option>
             {% endfor %}
           </select>
-          <input type="submit" name="button" class="btn btn-primary" value="Transfer Player" >
+          <input type="submit" name="button" class="btn btn-primary form-control" value="Transfer Player" >
         </td>
         <td class="text-end">
-          <input type="submit" name="button" class="btn btn-warning" value="Remove Player From Team" >
+          <input type="submit" name="button" class="btn btn-warning form-control" value="Remove Player From Team" >
         </td>
       </form>
     </tr>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block list_sql_active %}active{% endblock %}
+{% block content %}
+<div {% if error|length == 0 %} hidden {% endif %}class="alert alert-danger" role="alert">
+  {{error}}
+</div>
+<form action="" method="post" lass="form-control">
+  <label for="query" class="form-label fw-bold">MySQL Query</label>
+  <input type="text" name="query" class="form-control" placeholder="SHOW TABLES;" required>
+  <hr>
+  <input type="submit" name="button" class="btn btn-primary form-control" value="Execute" >
+</form>
+<br>
+<br>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        {% for item in header %}
+        <th scope="col">{{item}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+      {% for line in table %}
+      <tr>
+        {% for item in line %}
+        <th>{{item}}</th>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

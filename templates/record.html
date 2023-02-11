@@ -27,7 +27,7 @@
     {% for player_id, player_name in players_in_team %}
     <form action="" method="post">
       <input type="hidden" name="button" value="{{player_id}}">
-      <input type="submit" name="btn" value="{{player_name}}" class ="btn btn-primary btn-lg btn-lg m-1" {% if player in invalid_moves %} disabled {% endif %}>
+      <input type="submit" name="btn" value="{{player_name}}" class ="btn btn-primary btn-lg btn-lg m-1" {% if player_name in invalid_moves %} disabled {% endif %}>
     </form>
     {% endfor %}
   </div>
@@ -67,6 +67,12 @@
     {% endfor %}
   </tr>
   {% endfor %}
+  <tr {% if has_deleted == False %} hidden {% endif %}>
+    <th scope="row" class="text-center">DELETED_PLAYER</td>
+    {% for value in deleted_player_stats %}
+    <td class="text-center">{{value}}</td>
+    {% endfor %}
+  </tr>
   </tbody>
 </table>
 {% endblock %}  

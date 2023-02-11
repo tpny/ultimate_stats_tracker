@@ -12,6 +12,7 @@
         <li class="nav-item"><a href="{{url_for('list_players')}}" class="nav-link {% block list_players_active %}{% endblock %}">{% block list_manage_player %}Manage Players{% endblock %}</a></li>
         <li class="nav-item"><a href="{{url_for('list_teams')}}" class="nav-link {% block list_teams_active %}{% endblock %}">{% block list_manage_team %}Manage Teams{% endblock %}</a></li>
         <li class="nav-item"><a href="{{url_for('list_games')}}" class="nav-link {% block list_games_active %}{% endblock %}">{% block list_manage_game %}Manage Games{% endblock %}</a></li>
+        <li class="nav-item"><a href="{{url_for('execute_sql')}}" class="nav-link {% block list_sql_active %}{% endblock %}">MySQL</a></li>
       </ul>
     </header>
     <br>
@@ -21,5 +22,10 @@
   <body>
     <div class="container" >{% block content %}{% endblock %}</div>
   </body>
+  <script>
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+  </script>
 </html>
 

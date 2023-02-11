@@ -12,9 +12,15 @@ class MySQLConnector:
     self.stats_list = stats_list
     self.create_tables()
 
+
+  def reset_connection(self):
+    self.cnx.close()
+    self.cnx = mysql.connector.connect(user = self.user, password = self.password, host = self.host, database = self.database)
+
+
   def create_tables(self):
     cursor = self.cnx.cursor()
-    query = "CREATE TABLE IF NOT EXISTS TEAMS ( id int NOT NULL AUTO_INCREMENT, team_name varchar(20) NOT NULL, PRIMARY KEY (id));"
+    query = "CREATE TABLE IF NOT EXISTS TEAMS ( id int NOT NULL AUTO_INCREMENT, team_name varchar(20) NOT NULL, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id));"
     cursor.execute(query)
     self.cnx.commit()
     
@@ -22,55 +28,65 @@ class MySQLConnector:
     cursor.execute(query)
     self.cnx.commit()
 
-    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team int NOT NULL, away_team int NOT NULL, notes varchar(50), game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id), FOREIGN KEY (home_team) REFERENCES TEAMS(id), FOREIGN KEY (away_team) REFERENCES TEAMS(id));"
+    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team int NOT NULL, away_team int NOT NULL, note varchar(50), game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (home_team) REFERENCES TEAMS(id), FOREIGN KEY (away_team) REFERENCES TEAMS(id));"
     cursor.execute(query)
     self.cnx.commit()
 
-    query = "CREATE TABLE IF NOT EXISTS PLAYS (team int NOT NULL, game int NOT NULL, play MEDIUMTEXT, processed BOOLEAN NOT NULL, PRIMARY KEY (team, game), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (game) REFERENCES GAMES(id));"
+    query = "CREATE TABLE IF NOT EXISTS PLAYS (team int NOT NULL, game int NOT NULL, play MEDIUMTEXT, processed BOOLEAN NOT NULL DEFAULT FALSE, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (team, game), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (game) REFERENCES GAMES(id));"
     cursor.execute(query)
     self.cnx.commit()
 
     stats_str = ",".join(map(lambda stats: " stats_{} int NOT NULL".format(stats), self.stats_list))
-    query = "CREATE TABLE IF NOT EXISTS PLAYER_STATS (player int NOT NULL, game int NOT NULL, team int NOT NULL, {}, PRIMARY KEY (player, game), FOREIGN KEY (player) REFERENCES PLAYERS(id), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (game) REFERENCES GAMES(id));".format(stats_str)
+    query = "CREATE TABLE IF NOT EXISTS PLAYER_STATS (player int NOT NULL, game int NOT NULL, team int NOT NULL, {}, PRIMARY KEY (player, game, team), FOREIGN KEY (player) REFERENCES PLAYERS(id), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (game) REFERENCES GAMES(id));".format(stats_str)
+    cursor.execute(query)
     self.cnx.commit()
+
+    # drop table PLAYER_STATS;
+    # drop table PLAYERS;
+    # drop table PLAYS;
+    # drop table GAMES;
+    # drop table TEAMS;
+    # show tables;
 
     cursor.close()
 
-  def insert_or_update_play(self, team_id, game_id, plays_str, processed = False):
+  def insert_or_update_play(self, team_id, game_id, plays_str = None, processed = False):
     cursor = self.cnx.cursor()
-    query = "REPLACE INTO PLAYS (team, game, play, processed) VALUES(%s, %s, '%s', %s);"
-    cursor.execute(query, (team_id, game_id, plays_str, processed))
+    if(processed and not plays_str):
+      query = "UPDATE PLAYS SET processed = TRUE WHERE team = %s and game = %s;"
+      cursor.execute(query, (team_id, game_id))
+    else:
+      query = "REPLACE INTO PLAYS (team, game, play, processed) VALUES(%s, %s, %s, %s);"
+      cursor.execute(query, (team_id, game_id, plays_str, processed))
     self.cnx.commit()
     cursor.close()
 
-  def create_game(self, home_team_id, away_team_id, game_time = None):
+  def create_game(self, home_team_id, away_team_id, game_time = None, note = ""):
     cursor = self.cnx.cursor()
     if(game_time):
-      query = "REPLACE INTO GAMES (home_team, away_team, game_time) VALUES(%s, %s, '%s');"
-      cursor.execute(query, (home_team_id, away_team_id, game_time))
+      query = "INSERT INTO GAMES (home_team, away_team, game_time, note) VALUES(%s, %s, %s, %s);"
+      cursor.execute(query, (home_team_id, away_team_id, game_time, note))
     else:
-      query = "REPLACE INTO GAMES (home_team, away_team) VALUES(%s, %s);"
-      cursor.execute(query, (home_team_id, away_team_id))
+      query = "INSERT INTO GAMES (home_team, away_team, note) VALUES(%s, %s, %s);"
+      cursor.execute(query, (home_team_id, away_team_id, note))
     self.cnx.commit()
     cursor.close()
 
-  def update_game(self, game_id, home_team_id, away_team_id, game_time = None):
+  def update_game(self, game_id, game_time, note):
     cursor = self.cnx.cursor()
-    if(datetime):
-      query = "REPLACE INTO GAMES (home_team, away_team, game_time) VALUES(%s, %s, %s);"
-      cursor.execute(query, (home_team_id, away_team_id, game_time))
-    else:
-      query = "REPLACE INTO GAMES (home_team, away_team) VALUES(%s, %s);"
-      cursor.execute(query, (home_team_id, away_team_id))
+    query = "UPDATE GAMES SET game_time = %s WHERE id = %s;"
+    cursor.execute(query, (game_time, game_id))
     self.cnx.commit()
     cursor.close()
 
-  # def remove_game(self, game_id)
-  #   cursor = self.cnx.cursor()
-  #   query = "DELETE FROM GAMES WHERE id = %s;".format(game_id)
-  #   cursor.execute(query)
-  #   self.cnx.commit()
-  #   cursor.close()
+  def remove_game(self, game_id):
+    cursor = self.cnx.cursor()
+    query = "UPDATE PLAYS SET hidden = TRUE WHERE game = %s;"
+    cursor.execute(query, (game_id, ))
+    query = "UPDATE GAMES SET hidden = TRUE WHERE id = %s;"
+    cursor.execute(query, (game_id, ))
+    self.cnx.commit()
+    cursor.close()
 
   def create_team(self, team_name):
     cursor = self.cnx.cursor()
@@ -82,24 +98,34 @@ class MySQLConnector:
   def update_team(self, team_id, team_name):
     cursor = self.cnx.cursor()
     query = "UPDATE TEAMS SET team_name = %s WHERE id = %s;"
-    print((team_name, team_id))
     cursor.execute(query, (team_name, team_id))
     self.cnx.commit()
     cursor.close()
 
-  # def remove_team(self, team_id)
-  #   cursor = self.cnx.cursor()
-  #   query = "DELETE FROM TEAMS WHERE id = %s;".format(team_id)
-  #   cursor.execute(query)
-  #   self.cnx.commit()
-  #   cursor.close()
-
-  def create_player(self, player_name, team_id, base_id = "NULL"):
+  def remove_team(self, team_id):
     cursor = self.cnx.cursor()
-    query = "INSERT INTO PLAYERS (player_name, team, base_id) VALUES(%s, %s, %s);"
-    print(query)
-    cursor.execute(query, (player_name, team_id, base_id))
+    query = "UPDATE TEAMS SET hidden = TRUE WHERE id = %s;"
+    cursor.execute(query, (team_id, ))
     self.cnx.commit()
+    cursor.close()
+
+  def create_player(self, player_name, team_id = None, base_id = None, unhidden = False):
+    cursor = self.cnx.cursor()
+    if(not base_id): # create base player
+      query = "INSERT INTO PLAYERS (player_name) VALUES(%s);"
+      cursor.execute(query, (player_name, ))
+      if(team_id):
+        query = "INSERT INTO PLAYERS (player_name ,team, base_id) VALUES(%s, %s, LAST_INSERT_ID());"
+        cursor.execute(query, (player_name, team_id))
+      self.cnx.commit()
+    elif(unhidden):
+      query = "UPDATE PLAYERS SET hidden = FALSE WHERE base_id = %s and team = %s;"
+      cursor.execute(query, (base_id, team_id))
+      self.cnx.commit()
+    else:
+      query = "INSERT INTO PLAYERS (player_name,team, base_id) VALUES(%s, %s, %s);"
+      cursor.execute(query, (player_name, team_id, base_id))
+      self.cnx.commit()
     cursor.close()
 
   def update_player(self, player_id, player_name = None, team_id = None):
@@ -118,18 +144,20 @@ class MySQLConnector:
     if(is_base): # hide base player and all its stats
       query = "UPDATE PLAYERS SET hidden = TRUE WHERE base_id = %s or id = %s;"
       cursor.execute(query, (player_id, player_id))
+      self.cnx.commit()
     else: # remove a player from a team
-      query = "UPDATE PLAYERS SET team = %s WHERE id = %s;"
-      cursor.execute(query, ("NULL", player_id))
-
-    self.cnx.commit()
+      query = "UPDATE PLAYERS SET hidden = TRUE WHERE id = %s;"
+      cursor.execute(query, (player_id, ))
+      self.cnx.commit()
     cursor.close()
+    self.update_player(player_id, player_name = "DELETED PLAYER")
 
-  def get_players(self, team_id = None, get_hidden = False):
+
+  def get_players(self, team_id = None):
     cursor = self.cnx.cursor()
     if(team_id):
-      query = "SELECT * FROM PLAYERS WHERE team = %s AND hidden = %s;"
-      cursor.execute(query, (team_id, not get_hidden))
+      query = "SELECT * FROM PLAYERS WHERE team = %s;"
+      cursor.execute(query, (team_id, ))
     else:
       query = "SELECT * FROM PLAYERS;"
       cursor.execute(query)
@@ -149,15 +177,19 @@ class MySQLConnector:
     cursor = self.cnx.cursor()
 
     if(team_id or game_id or unprocessed):
-      criti = []
+      query_str = []
+      query_data = []
       if(team_id):
-        criti.append("team = %s".format(team_id))
+        query_str.append("team = %s")
+        query_data.append(team_id)
       if(game_id):
-        criti.append("game = %s".format(game_id))
+        query_str.append("game = %s")
+        query_data.append(game_id)
       if(unprocessed):
-        criti.append("processed = FALSE")
-      query = "SELECT * FROM PLAYS WHERE %s;"
-      cursor.execute(query, " AND ".join(criti))
+        query_str.append("processed = %s")
+        query_data.append("FALSE")
+      query = "SELECT * FROM PLAYS WHERE {};".format(" AND ".join(query_str))
+      cursor.execute(query, query_data)
     else:
       query = "SELECT * FROM PLAYS;"
       cursor.execute(query)
@@ -180,15 +212,19 @@ class MySQLConnector:
   def get_player_stats(self, game_id = None, player_id = None, team_id = None):
     cursor = self.cnx.cursor()
     if(game_id or player_id or team_id):
-      criti = []
+      query_str = []
+      query_data = []
       if(game_id):
-        criti.append("game = %s".format(game_id))
+        query_str.append("game = %s")
+        query_data.append(game_id)
       if(player_id):
-        criti.append("player = %s".format(player_id))
+        query_str.append("player = %s")
+        query_data.append(player_id)
       if(team_id):
-        criti.append("team = %s".format(team_id))
-      query = "SELECT * FROM PLAYER_STATS WHERE %s;"
-      cursor.execute(query, " AND ".join(criti))
+        query_str.append("team = %s")
+        query_data.append(team_id)
+      query = "SELECT * FROM PLAYER_STATS WHERE {};".format(" AND ".join(query_str))
+      cursor.execute(query, query_data)
     else:
       query = "SELECT * FROM PLAYER_STATS;"
       cursor.execute(query)
@@ -196,21 +232,26 @@ class MySQLConnector:
     cursor.close()
     return data
 
-  def insert_or_update_player_stats(self, player_stats, players_to_id, team, game):
+  def insert_or_update_player_stats(self, player_stats, team_id, game_id):
     cursor = self.cnx.cursor()
-    stats_str = ",".join(map(lambda stats: " stats_%s".format(stats), self.stats_list))
-    for player in player_stats:
-      player_stats_str = ",".join(map(str, player_stats[player]))
-      query = "REPLACE INTO PLAYER_STATS (player, game, team, %s) VALUES(%s, %s, %s, %s);"
-      cursor.execute(query, (stats_str, players_to_id[player], game, team, player_stats_str))
+    stats_str = ", ".join(map(lambda stats: "stats_{}".format(stats), self.stats_list))
+    value_str = ", ".join(map(lambda stats: "%s".format(stats), self.stats_list))
+
+    for player_id in player_stats:
+      query = "REPLACE INTO PLAYER_STATS (player, game, team, {}) VALUES(%s, %s, %s, {});".format(stats_str, value_str)
+      print(query)
+      cursor.execute(query, (player_id, game_id, team_id, *player_stats[player_id]))
     self.cnx.commit()
     cursor.close()
 
 
   def execute_sql(self, query):
-    cursor = self.cnx.cursor()
-    cursor.execute(query)
+    cursor = self.cnx.cursor(dictionary = True)
+    querys = query.split(";")
+    for query in querys:
+      if(query):
+        cursor.execute(query + ";")
+        data = cursor.fetchall()
     self.cnx.commit()
-    data = cursor.fetchall()
     cursor.close()
     return data

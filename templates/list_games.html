@@ -41,31 +41,35 @@
           <input type="text" class="form-control" name="note" placeholder="Additonal notes">
         </td>
         <td>
-          <input type="submit" name="button" class="btn btn-primary" value="Create Game" >
+          <input type="submit" name="button" class="btn btn-primary form-control" value="Create Game" >
         </td>
       </form>
     </tr>
-    {% for game_id, home_team_id, away_team_id, note, game_time in games %}
-    <tr>
-        <form action="" method="post" class="form-control">
-          <input type="hidden" name="game_id" value="{{game_id}}" >
-          <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
-          <td>
-            {{id_to_teams[home_team_id|string]}}
+    {% for game_id, home_team_id, away_team_id, note, game_time, hidden in games %}
+    <tr {% if hidden == TRUE %} hidden {% endif %}>
+      <form action="" method="post" >
+        <input type="hidden" name="game_id" value="{{game_id}}" >
+        <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
+        <td>
+          <div class="d-flex flex-nowrap justify-content-between flex-row-reverse">
             <input type="hidden" name="team_id" value="{{home_team_id}}" >
-            <input type="submit" name="button" class="btn btn-primary" value="Start Record" >
-          </td>
-          <td>
-            {{id_to_teams[away_team_id|string]}}
+            <label for="home_start_record_{{loop.index}}" class="col-form-label fw-bold ms-2">{{id_to_teams[home_team_id|string]}}</label>
+            <input type="submit" id="home_start_record_{{loop.index}}" name="button" class="btn btn-primary flex-fill" value="Start Record" >
+          </div>
+        </td>
+        <td>
+          <div class="d-flex flex-nowrap justify-content-between">
             <input type="hidden" name="team_id" value="{{away_team_id}}" >
-            <input type="submit" name="button" class="btn btn-primary" value="Start Record" >
-          </td>
-          <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
-          <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
-          <td>
-            <input type="submit" name="button" class="btn btn-primary" value="Game Stats" >
-          </td>
-        </form>
+            <label for="away_start_record_{{loop.index}}" class="col-form-label fw-bold me-2">{{id_to_teams[away_team_id|string]}}</label>
+            <input type="submit" id="away_start_record_{{loop.index}}" name="button" class="btn btn-primary flex-fill" value="Start Record" >
+          </div>
+        </td>
+        <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
+        <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
+        <td>
+          <input type="submit" name="button" class="btn btn-primary form-control" value="Game Stats" >
+        </td>
+      </form>
     </tr>
     {% endfor %}
     </tbody>

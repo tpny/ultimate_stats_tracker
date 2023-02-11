@@ -23,34 +23,34 @@
         <td></td>
         <td></td>
         <td>
-          <input type="submit" name="button" class="btn btn-primary" value="Create New Player" >
+          <input type="submit" name="button" class="btn btn-primary  form-control" value="Create New Player" >
         </td>
         <td></td>
       </form>
       </tr>
-      {% for player_name in base_players_to_id %}
+      {% for player_name, player_id in base_players_to_id.items() %}
       <tr>
         <form action="" method="post" class="form-control">
           <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" name="player_name" value="{{player_name}}"></th>
-          <td><input type="text" readonly class="form-control-plaintext" name="player_id" value="{{base_players_to_id[player_name]}}"></td>
+          <td><input type="text" readonly class="form-control-plaintext" name="player_id" value="{{player_id}}"></td>
         </form>
         <form action="" method="post" class="form-control">
           <td>
-            <input type="hidden" name="player_id" value="{{base_players_to_id[player_name]}}">
+            <input type="hidden" name="player_id" value="{{player_id}}">
             <input type="submit" name="button" class="btn btn-primary" value="View Stats" >
           </td>
         </form>
         <form action="" method="post" class="form-control">
           <td class="d-flex flex-nowrap">
             <input type="hidden" name="player_name" value="{{player_name}}">
-            <input type="hidden" name="player_id" value="{{base_players_to_id[player_name]}}">
+            <input type="hidden" name="player_id" value="{{player_id}}">
             <input type="text" name="new_name" class="form-control" placeholder="" required>
             <input type="submit" name="button" class="btn btn-primary" value="Rename Player" >
           </td>
         </form>
         <form action="" method="post" class="form-control">
           <td class="text-end">
-            <input type="hidden" name="player_id" value="{{base_players_to_id[player_name]}}">
+            <input type="hidden" name="player_id" value="{{player_id}}">
             <input type="submit" name="button" class="btn btn-danger" value="Remove Player" >
           </td>
         </form>
