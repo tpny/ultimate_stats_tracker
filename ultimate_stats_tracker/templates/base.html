@@ -2,7 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
-    <!-- <script src="{{ url_for('static', filename='js/bootstrap.js') }}" crossorigin=”anonymous”></script> -->
+    <script type='text/javascript' src="{{ url_for('static', filename='js/jquery-3.6.3.css')}}"></script>
     <title>{% block title %}{% endblock %}</title>
   </head>
   <div class="container" {% block hide_header %}{% endblock %}>

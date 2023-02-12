@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}Manage Players{% endblock %}
 {% block list_players_active %}active{% endblock %}
 {% block content %}
 <div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">

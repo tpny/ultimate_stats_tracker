@@ -1,25 +1,8 @@
 from flask import Flask
 from flask import render_template, request, redirect, url_for
-import mysql.connector
+import mysql
 
-import mysql_connector
-
-#const
-ACTIONS = ["DROP", "THROW_AWAY", "DEFENSE", "GOAL"]
-STATS = ["GOAL", "ASSIST", "BLOCK", "CATCH_BLOCK", "DROP", "THROW_AWAY", "POSSESSION", "CALLAHAN"]
-APP = Flask(__name__)
-db_connector = mysql_connector.MySQLConnector(STATS);
-
-
-GOAL = 0
-ASSIST = 1
-BLOCK = 2
-CATCH_BLOCK = 3
-DROP = 4
-THROW_AWAY = 5
-POSSESSION = 6
-CALLAHAN = 7
-STATS_COUNT = 8
+from ultimate_stats_tracker import APP, db_connector, Stats, Actions, logger
 
 #static
 id_to_teams = {}
@@ -95,28 +78,28 @@ def compute_play_stats(play_seq, players_in_team):
     if(play in players_in_team): # is player
       player = play
       if(player not in player_stats):
-        player_stats[player] = [0] * STATS_COUNT
-      player_stats[player][POSSESSION] += 1
-      if(one_prior == "DEFENSE" and two_prior == player):
-          player_stats[player][CATCH_BLOCK] += 1
-          player_stats[player][BLOCK] -= 1
+        player_stats[player] = [0] * Stats.COUNT
+      player_stats[player][Stats.POSSESSION] += 1
+      if(one_prior == Actions.DEFENSE.name and two_prior == player):
+          player_stats[player][Stats.CATCH_BLOCK] += 1
+          player_stats[player][Stats.BLOCK] -= 1
 
     else: # is not player
       player = one_prior
-      if(play == "DEFENSE"):
-        player_stats[player][BLOCK] += 1
-        player_stats[player][POSSESSION] -= 1
-      elif(play == "DROP"):
-        player_stats[player][DROP] += 1
-        player_stats[player][POSSESSION] -= 1
-      elif(play == "THROW_AYAW"):
-        player_stats[player][THROW_AYAW] += 1
-      elif(play == "GOAL"):
-        player_stats[player][GOAL] += 1
+      if(play == Actions.DEFENSE.name):
+        player_stats[player][Stats.BLOCK] += 1
+        player_stats[player][Stats.POSSESSION] -= 1
+      elif(play == Actions.DROP.name):
+        player_stats[player][Stats.DROP] += 1
+        player_stats[player][Stats.POSSESSION] -= 1
+      elif(play == Actions.THROW_AWAY.name):
+        player_stats[player][Stats.THROW_AWAY] += 1
+      elif(play == Actions.GOAL.name):
+        player_stats[player][Stats.GOAL] += 1
         if(two_prior in players_in_team):
-          player_stats[two_prior][ASSIST] += 1
-        elif(two_prior == "DEFENSE"):
-          player_stats[player][CALLAHAN] += 1
+          player_stats[two_prior][Stats.ASSIST] += 1
+        elif(two_prior == Actions.DEFENSE.name):
+          player_stats[player][Stats.CALLAHAN] += 1
 
     three_prior = two_prior
     two_prior = one_prior
@@ -125,21 +108,20 @@ def compute_play_stats(play_seq, players_in_team):
   invalid_moves = set()
   if(one_prior in players_in_team):
     invalid_moves.add(one_prior)
-    if((two_prior not in players_in_team) and (two_prior != "DEFENSE" or three_prior != one_prior)):
-      invalid_moves.add("GOAL")
-    if(two_prior == "DEFENSE"):
-      invalid_moves.add("DEFENSE")
+    if((two_prior not in players_in_team) and (two_prior != Actions.DEFENSE.name or three_prior != one_prior)):
+      invalid_moves.add(Actions.GOAL.name)
+    if(two_prior == Actions.DEFENSE.name):
+      invalid_moves.add(Actions.DEFENSE.name)
     if(two_prior not in players_in_team):
-      invalid_moves.add("DROP")
+      invalid_moves.add(Actions.DROP.name)
   else:
-    invalid_moves.update(ACTIONS)
+    invalid_moves.update(list(Actions.__members__.keys())[:-1])
 
   return player_stats, invalid_moves
 
 @APP.route('/')
 @APP.route('/index')
 def index():
-
   db_connector.create_tables()
   refresh_globals()
 
@@ -181,12 +163,12 @@ def record(team_id, game_id):
   player_stats, invalid_moves = compute_play_stats(plays, team_id_to_player_ids[team_id])
 
   player_stats_in_names = {}
-  deleted_player_stats = [0] * STATS_COUNT
+  deleted_player_stats = [0] * Stats.COUNT
   has_deleted = False
   for player_id in player_stats:
     if(player_id in hidden_players_ids):
       has_deleted = True
-      for i in range(STATS_COUNT):
+      for i in range(Stats.COUNT):
         deleted_player_stats[i] += player_stats[player_id][i]
     else:
       player_stats_in_names[id_to_players[player_id]] = player_stats[player_id]
@@ -211,7 +193,7 @@ def record(team_id, game_id):
       active_players_in_team.append((player_id, id_to_players[player_id]))
 
   return render_template("record.html", team_name = id_to_teams[team_id], players_in_team = sorted(active_players_in_team, key = lambda x : x[1]), plays = plays_in_name \
-    , actions = ACTIONS, invalid_moves = invalid_moves_in_name, stats_header = STATS, player_stats = player_stats_in_names, deleted_player_stats = deleted_player_stats \
+    , actions = list(Actions.__members__.keys())[:-1], invalid_moves = invalid_moves_in_name, stats_header = list(Stats.__members__.keys())[:-1], player_stats = player_stats_in_names, deleted_player_stats = deleted_player_stats \
     , has_deleted = has_deleted, hide_stats = "" if (player_stats_in_names or has_deleted) else "hidden", disable_undo = len(plays_in_name) == 0)
 
 
@@ -375,9 +357,11 @@ def execute_sql():
   update_db_player_stats()
   err = ""
   result = None
+
   if(request.method == "POST"):
+    query = request.form.get("query")
     try:
-      result = db_connector.execute_sql(request.form.get("query"))
+      result = db_connector.execute_sql()
     except mysql.connector.Error as error:
       err = str(error)
 
@@ -404,22 +388,3 @@ def view_player_stat(player_name):
 @APP.route('/view_game_stat/<game_id>', methods = ["POST", "GET"])
 def view_game_stat(game_id):
   return "TODO"
-
-
-if __name__ == "__main__":
-  # players["team_1"] = ["A", "B", "C", "D", "E", "F"]
-  # players["team_2"] = ["A", "B", "C", "D", "E", "F"]
-  print("get_players")
-  print(db_connector.get_players())
-  print("get_teams")
-  print(db_connector.get_teams())
-  print("get_plays")
-  print(db_connector.get_plays())
-  print("get_games")
-  print(db_connector.get_games())
-
-  refresh_globals()
-  update_db_player_stats()
-
-  APP.run('0.0.0.0', 5000, debug=False)
-
