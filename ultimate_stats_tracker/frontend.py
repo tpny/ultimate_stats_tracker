@@ -361,7 +361,7 @@ def execute_sql():
   if(request.method == "POST"):
     query = request.form.get("query")
     try:
-      result = db_connector.execute_sql()
+      result = db_connector.execute_sql(query)
     except mysql.connector.Error as error:
       err = str(error)
 
