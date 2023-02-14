@@ -140,11 +140,15 @@
         $.each(data.invalid_moves, function( index, value ) {
           $( "#" + value ).prop( "disabled", true );
         });
+        if(play_seq.length == 0){
+          $("#UNDO").prop( "disabled", true );
+        }
 
-        if(data.player_stats.length){
-          $('#stas_table').prop( "hidden", false );
+
+        if(data.player_stats.length == 0){
+          $('#stats_table').prop( "hidden", true );
         }else{
-          $('#stas_table').prop( "hidden", true );
+          $('#stats_table').prop( "hidden", false );
         }
 
         $("#player_stats_table tr").remove()
