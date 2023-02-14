@@ -1,4 +1,4 @@
-from ultimate_stats_tracker import APP, db_connector, frontend, logger
+from ultimate_stats_tracker import APP, db_connector, frontend, api, logger
 import logging
 
 if __name__ == "__main__":
@@ -10,7 +10,7 @@ if __name__ == "__main__":
   logger.debug("get_plays: " + str(db_connector.get_plays()))
   logger.debug("get_games: " + str(db_connector.get_games()))
 
-  frontend.refresh_globals()
-  frontend.update_db_player_stats()
+  api.refresh_globals()
+  api.update_db_player_stats()
 
   APP.run('0.0.0.0', 5000, debug=False)

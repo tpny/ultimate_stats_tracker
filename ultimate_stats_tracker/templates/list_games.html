@@ -48,29 +48,34 @@
     </tr>
     {% for game_id, home_team_id, away_team_id, note, game_time, hidden in games %}
     <tr {% if hidden == TRUE %} hidden {% endif %}>
-      <form action="" method="post" >
-        <input type="hidden" name="game_id" value="{{game_id}}" >
-        <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
-        <td>
+      <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
+      <td>
+        <form action="" method="post" >
+          <input type="hidden" name="game_id" value="{{game_id}}" >
           <div class="d-flex flex-nowrap justify-content-between flex-row-reverse">
             <input type="hidden" name="team_id" value="{{home_team_id}}" >
             <label for="home_start_record_{{loop.index}}" class="col-form-label fw-bold ms-2">{{id_to_teams[home_team_id|string]}}</label>
             <input type="submit" id="home_start_record_{{loop.index}}" name="button" class="btn btn-primary flex-fill" value="Start Record" >
           </div>
-        </td>
-        <td>
+        </form>
+      </td>
+      <td>
+        <form action="" method="post" >
+          <input type="hidden" name="game_id" value="{{game_id}}" >
           <div class="d-flex flex-nowrap justify-content-between">
             <input type="hidden" name="team_id" value="{{away_team_id}}" >
             <label for="away_start_record_{{loop.index}}" class="col-form-label fw-bold me-2">{{id_to_teams[away_team_id|string]}}</label>
             <input type="submit" id="away_start_record_{{loop.index}}" name="button" class="btn btn-primary flex-fill" value="Start Record" >
           </div>
-        </td>
-        <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
-        <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
-        <td>
+        </form>
+      </td>
+      <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
+      <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
+      <td>
+        <form action="" method="post" >
           <input type="submit" name="button" class="btn btn-primary form-control" value="Game Stats" >
-        </td>
-      </form>
+        </form>
+      </td>
     </tr>
     {% endfor %}
     </tbody>

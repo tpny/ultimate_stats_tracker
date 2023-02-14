@@ -7,40 +7,39 @@
 <div class="d-flex flex-row justify-content-between">
   <div class="vr"></div>
   <div class="w-25 p-3">
-    <table class="table text-center ">
-      <thead>
-        <tr>
-          <th scope="col">Recent Plays</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for play in plays %}
-      <tr>
-        <td scope="row" class="{% if loop.index < 3 %} text-body-emphasis {% elif  loop.index < 7 %} text-body-secondary {% else %} text-body-tertiary {% endif %}">{{play}}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table text-center ">
+        <thead>
+          <tr>
+            <th scope="col">Recent Plays</th>
+          </tr>
+        </thead>
+        <tbody id="recent_plays_table">
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="vr"></div>
   <div class="d-flex align-content-start flex-wrap w-50 m-3">
     {% for player_id, player_name in players_in_team %}
-    <form action="" method="post">
-      <input type="hidden" name="button" value="{{player_id}}">
-      <input type="submit" name="btn" value="{{player_name}}" class ="btn btn-primary btn-lg btn-lg m-1" {% if player_name in invalid_moves %} disabled {% endif %}>
+    <form class="play_form my-1 mx-1 flex-fill text-truncate">
+      <input type="hidden" name="player_id" value="{{player_id}}">
+      <input type="submit" name="button" value="{{player_name}}" id="{{player_id}}" class ="btn btn-primary btn-lg btn-lg form-control"  {% if player_name in invalid_moves %} disabled {% endif %}>
     </form>
     {% endfor %}
   </div>
   <div class="vr"></div>
-  <div class="d-flex flex-column text-center w-25 p-3">
-    <div class="row">
-      <form action="" method="post">
-        {% for action in actions %}
-        <input type="submit" name="button" value="{{action}}" class ="form-control btn btn-secondary btn-lg btn-block" {% if action in invalid_moves %} disabled {% endif %}>
-        <br>
-        <br>
-        {% endfor %}
-        <input type="submit" name="button" value="UNDO" class ="form-control btn btn-outline-warning btn-lg btn-block" {% if disable_undo %} disabled {% endif %}>
+  <div class="d-flex flex-column text-center p-3">
+    <div class="d-flex flex-column justify-content-between">
+      {% for action in actions %}
+      <form class="play_form my-1">
+        <input type="submit" name="button" value="{{action}}" id="{{action}}" class ="form-control btn btn-secondary btn-lg btn-block" {% if action in invalid_moves %} disabled {% endif %}>
+      </form>
+      {% endfor %}
+      <br>
+      <br>
+      <form class="play_form my-1">
+        <input type="submit" name="button" value="UNDO" id="UNDO" class ="form-control btn btn-outline-warning btn-lg btn-block" {% if disable_undo %} disabled {% endif %}>
       </form>
     </div>
   </div>
@@ -49,30 +48,115 @@
 <br>
 <hr>
 <br>
-<table class="table" {{hide_stats}}>
-  <thead>
+<div class="table-responsive">
+  <table class="table" {{hide_stats}}>
+    <thead>
+      <tr>
+        <th scope="col" class="text-center">Player</th>
+        {% for header_item in stats_header %}
+        <th scope="col" class="text-center">{{header_item}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody id="player_stats_table">
+    {% for player, stats in player_stats.items() %}
     <tr>
-      <th scope="col" class="text-center">Player</th>
-      {% for header_item in stats_header %}
-      <th scope="col" class="text-center">{{header_item}}</th>
+      <th scope="row" class="text-center">{{player}}</th>
+      {% for value in stats %}
+      <td class="text-center">{{value}}</td>
       {% endfor %}
     </tr>
-  </thead>
-  <tbody>
-  {% for player, stats in player_stats.items() %}
-  <tr>
-    <th scope="row" class="text-center">{{player}}</td>
-    {% for value in stats %}
-    <td class="text-center">{{value}}</td>
     {% endfor %}
-  </tr>
-  {% endfor %}
-  <tr {% if has_deleted == False %} hidden {% endif %}>
-    <th scope="row" class="text-center">DELETED_PLAYER</td>
-    {% for value in deleted_player_stats %}
-    <td class="text-center">{{value}}</td>
-    {% endfor %}
-  </tr>
-  </tbody>
-</table>
-{% endblock %}  
+    <tr {% if has_deleted == False %} hidden {% endif %}>
+      <th scope="row" class="text-center">DELETED_PLAYER</th>
+      {% for value in deleted_player_stats %}
+      <td class="text-center">{{value}}</td>
+      {% endfor %}
+    </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+  var game_id = "{{game_id}}";
+  var team_id = "{{team_id}}";
+  var id_to_players = JSON.parse('{{id_to_players|tojson}}');
+  var play_seq = "{{play_str}}".split(",");
+  // var play_seq = [];
+
+  function update_recent_play() {
+    $("#recent_plays_table tr").remove()
+    $.each(play_seq.slice(-10).reverse(), function( key, value ) {
+      if(id_to_players.hasOwnProperty(value)){
+        value = id_to_players[value]
+      }
+
+      let fade_class = "";
+      if(key < 3 ){
+        fade_class = "text-body-emphasis";
+      }else if(key < 7 ){
+        fade_class = "text-body-secondary";
+      }else{
+        fade_class = "text-body-tertiary";
+      }
+      $("#recent_plays_table").append('<tr><td scope="row" class="' + fade_class + '">' + value + '</td></tr>');
+    }); 
+  }
+
+  $(document).ready(function () {
+
+    update_recent_play()
+
+    $(".play_form").submit(function (event) {
+      event.preventDefault();
+      if(event.target.elements.namedItem('player_id')){
+        play_seq.push(event.target.elements.namedItem('player_id').value);
+      }else{
+        let action = event.target.elements.namedItem('button').value
+        if(action == "UNDO"){
+          play_seq.pop()
+        }else{
+          play_seq.push(action);
+        }
+      }
+
+      var formData = {
+        play_str: play_seq.join(","),
+        game_id: game_id,
+        team_id: team_id,
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "/api/record",
+        data: formData,
+        dataType: "json",
+        encode: true,
+      }).done(function (data) {
+        $( ".btn").each(function() {
+          $(this).prop( "disabled", false );
+        });
+
+        $.each(data.invalid_moves, function( index, value ) {
+          $( "#" + value ).prop( "disabled", true );
+        });
+
+
+        $("#player_stats_table tr").remove()
+        for(let player_id in data.player_stats){
+          let player_name = id_to_players[player_id]
+          if(player_name == "DELETED PLAYER") continue; 
+          $("#player_stats_table").append('<tr id="player_stats_' + player_id + '"><th scope="row" class=text-center>' + player_name + '</th></tr>');
+          
+          for(let index = 0; index < data.player_stats[player_id].length; index++){
+            $("#player_stats_" + player_id).append('<td>' + data.player_stats[player_id][index] + '</td>');
+          }
+        }
+      });
+
+      update_recent_play()
+    });
+  });
+</script>
+{% endblock %}

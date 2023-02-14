@@ -19,17 +19,17 @@ class MySQLConnector:
 
   def create_tables(self):
     cursor = self.cnx.cursor()
-    query = "CREATE TABLE IF NOT EXISTS TEAMS ( id int NOT NULL AUTO_INCREMENT, team_name varchar(20) NOT NULL, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id));"
+    query = "CREATE TABLE IF NOT EXISTS TEAMS ( id int NOT NULL AUTO_INCREMENT, team_name TEXT NOT NULL, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     
-    query = "CREATE TABLE IF NOT EXISTS PLAYERS ( id int NOT NULL AUTO_INCREMENT, player_name varchar(20) NOT NULL, team int, base_id int, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (base_id) REFERENCES PLAYERS(id));"
+    query = "CREATE TABLE IF NOT EXISTS PLAYERS ( id int NOT NULL AUTO_INCREMENT, player_name TEXT NOT NULL, team int, base_id int, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (team) REFERENCES TEAMS(id), FOREIGN KEY (base_id) REFERENCES PLAYERS(id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
-    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team int NOT NULL, away_team int NOT NULL, note varchar(50), game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (home_team) REFERENCES TEAMS(id), FOREIGN KEY (away_team) REFERENCES TEAMS(id));"
+    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team int NOT NULL, away_team int NOT NULL, note TEXT, game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (home_team) REFERENCES TEAMS(id), FOREIGN KEY (away_team) REFERENCES TEAMS(id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
