@@ -49,7 +49,7 @@
 <hr>
 <br>
 <div class="table-responsive">
-  <table class="table" {{hide_stats}}>
+  <table id="stats_table" class="table" {{hide_stats}}>
     <thead>
       <tr>
         <th scope="col" class="text-center">Player</th>
@@ -140,6 +140,12 @@
         $.each(data.invalid_moves, function( index, value ) {
           $( "#" + value ).prop( "disabled", true );
         });
+
+        if(data.player_stats.length){
+          $('#stas_table').prop( "hidden", false );
+        }else{
+          $('#stas_table').prop( "hidden", true );
+        }
 
         $("#player_stats_table tr").remove()
         let deleted_player_stats = Array(stats_length).fill(0);
