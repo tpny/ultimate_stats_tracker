@@ -54,7 +54,7 @@
       <tr>
         <th scope="col" class="text-center">Player</th>
         {% for header_item in stats_header %}
-        <th scope="col" class="text-center">{{header_item}}</th>
+        <th scope="col">{{header_item}}</th>
         {% endfor %}
       </tr>
     </thead>
@@ -167,7 +167,7 @@
           for(let index = 0; index < stats_length; index++){
             $("#player_stats_" + player_id).append('<td>' + data.player_stats[player_id][index] + '</td>');
           }
-        } 
+        }
         if(has_deleted_player){
           $("#player_stats_table").append('<tr id="player_stats_DELETED PLAYER"><th scope="row" class=text-center>DELETED PLAYER</th></tr>');
           for(let index = 0; index < stats_length; index++){
