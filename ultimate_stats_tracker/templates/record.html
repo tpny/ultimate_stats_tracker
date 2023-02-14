@@ -52,7 +52,7 @@
   <table id="stats_table" class="table" {{hide_stats}}>
     <thead>
       <tr>
-        <th scope="col" class="text-center">Player</th>
+        <th scope="col">Player</th>
         {% for header_item in stats_header %}
         <th scope="col">{{header_item}}</th>
         {% endfor %}
@@ -61,16 +61,16 @@
     <tbody id="player_stats_table">
     {% for player, stats in player_stats.items() %}
     <tr>
-      <th scope="row" class="text-center">{{player}}</th>
+      <th scope="row">{{player}}</th>
       {% for value in stats %}
-      <td class="text-center">{{value}}</td>
+      <td>{{value}}</td>
       {% endfor %}
     </tr>
     {% endfor %}
     <tr {% if has_deleted == False %} hidden {% endif %}>
-      <th scope="row" class="text-center">DELETED_PLAYER</th>
+      <th scope="row">DELETED_PLAYER</th>
       {% for value in deleted_player_stats %}
-      <td class="text-center">{{value}}</td>
+      <td>{{value}}</td>
       {% endfor %}
     </tr>
     </tbody>
@@ -162,14 +162,14 @@
               has_deleted_player |= true;
             }
           }; 
-          $("#player_stats_table").append('<tr id="player_stats_' + player_id + '"><th scope="row" class=text-center>' + player_name + '</th></tr>');
+          $("#player_stats_table").append('<tr id="player_stats_' + player_id + '"><th scope="row">' + player_name + '</th></tr>');
           
           for(let index = 0; index < stats_length; index++){
             $("#player_stats_" + player_id).append('<td>' + data.player_stats[player_id][index] + '</td>');
           }
         }
         if(has_deleted_player){
-          $("#player_stats_table").append('<tr id="player_stats_DELETED PLAYER"><th scope="row" class=text-center>DELETED PLAYER</th></tr>');
+          $("#player_stats_table").append('<tr id="player_stats_DELETED PLAYER"><th scope="row">DELETED PLAYER</th></tr>');
           for(let index = 0; index < stats_length; index++){
             $("#player_stats_DELETED PLAYER").append('<td>' + deleted_player_stats[index] + '</td>');
           }
