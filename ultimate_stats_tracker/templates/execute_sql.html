@@ -2,35 +2,119 @@
 {% block title %}Execute SQL{% endblock %}
 {% block list_sql_active %}active{% endblock %}
 {% block content %}
-<div {% if error|length == 0 %} hidden {% endif %}class="alert alert-danger" role="alert">
-  {{error}}
-</div>
-<form action="" method="post" lass="form-control">
+<div id="error_banner" class="alert alert-danger" role="alert" hidden></div>
+<form id="send_query" lass="form-control">
   <label for="query" class="form-label fw-bold">MySQL Query</label>
   <input type="text" name="query" class="form-control" placeholder="SHOW TABLES;" required>
   <hr>
   <input type="submit" name="button" class="btn btn-primary form-control" value="Execute" >
 </form>
+<form id="reset_connection" class="my-3">
+  <input type="submit" name="button" class="btn btn-primary form-control" value="Reset DB Connection" >
+</form>
+<form id="reset_database">
+  <div class="input-group my-3">
+    <input class="form-control text-danger" type="text" value="Resetting database will DELETE EVERYTHING" readonly>
+    <div class="form-floating">
+      <input type="text" class="form-control" id="reset_db" name="input_confirm" placeholder='type "CONFIRM" here' required>
+      <label id="reset_db">type "CONFIRM" here</label>
+    </div>
+    <input type="submit" name="button" class="btn btn-outline-danger" value="Reset Database" >
+  </div>
+</form>
 <br>
 <br>
 <div class="table-responsive">
   <table class="table">
-    <thead>
-      <tr>
-        {% for item in header %}
-        <th scope="col">{{item}}</th>
-        {% endfor %}
-      </tr>
+    <thead id="query_table_header">
     </thead>
-    <tbody class="table-group-divider">
-      {% for line in table %}
-      <tr>
-        {% for item in line %}
-        <th>{{item}}</th>
-        {% endfor %}
-      </tr>
-      {% endfor %}
+    <tbody  id="query_table_body" class="table-group-divider">
     </tbody>
   </table>
 </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+ 
+ var recent_query = [];
+
+  $(document).ready(function () {
+    $("#send_query").submit(function (event) {
+      event.preventDefault();
+
+      let curr_query = event.target.elements.namedItem('query').value;
+      recent_query.push(curr_query);
+      console.log(recent_query);
+
+      let formData = {
+        query: curr_query,
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "/api/exec_sql",
+        data: formData,
+        dataType: "json",
+        encode: true,
+      }).done(function (data) {
+        $('#error_banner').prop( "hidden", true );
+        $("#query_table_header tr").remove();
+        $("#query_table_body tr").remove();
+
+        if(data.error){
+          $('#error_banner').prop( "hidden", false );
+          $('#error_banner').text(data.error);
+        }else if(data.result.length){
+          let header = Object.keys(data.result[0])
+          $("#query_table_header").append('<tr id="query_table_header_row"></tr>');
+          for(let i = 0; i < header.length; i++){
+            $("#query_table_header_row").append('<th scope="col">' + header[i] + '</th>');
+          }
+          for(i = 0; i < data.result.length; i++){
+            $("#query_table_body").append('<tr id = "tr_index_' + i + '" ></tr>');
+            for(let j = 0; j < header.length; j++){
+              $("#tr_index_" + i).append('<td>' + data.result[i][header[j]] + '</td>');
+            }
+          }
+        }
+      });
+    });
+
+    $("#reset_connection").submit(function (event) {
+      event.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: "/api/reset_connection",
+        data: {},
+        dataType: "json",
+        encode: true,
+      }).done(function (data) {
+        
+      });
+    });
+
+    $("#reset_database").submit(function (event) {
+      event.preventDefault();
+      $('#error_banner').prop( "hidden", true );
+      
+      let input_confirm = event.target.elements.namedItem('input_confirm').value;
+      if(input_confirm == "CONFIRM"){
+        $.ajax({
+          type: "POST",
+          url: "/api/reset_database",
+          data: {},
+          dataType: "json",
+          encode: true,
+        }).done(function (data) {
+          
+        });
+      }else{
+        $('#error_banner').prop( "hidden", false );
+        $('#error_banner').text('Please type "CONFIRM" to reset the database');
+      }
+    });
+  });
+
+
+</script>
 {% endblock %}

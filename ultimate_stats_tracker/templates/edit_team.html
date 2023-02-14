@@ -68,12 +68,14 @@
           <input type="submit" name="button" class="btn btn-primary form-control" value="View Stats" >
         </td>
         <td class="d-flex flex-nowrap">
-          <select class="form-select form" name="new_team">
-            {% for team_name in transferable_team %}
-            <option value="{{team_name}}" {% if team_name == curr_team_name %} selected {% endif %}>{{team_name}}</option>
-            {% endfor %}
-          </select>
-          <input type="submit" name="button" class="btn btn-primary form-control" value="Transfer Player" >
+          <div class="input-group">
+            <select class="form-select form" name="new_team">
+              {% for team_name in transferable_team %}
+              <option value="{{team_name}}" {% if team_name == curr_team_name %} selected {% endif %}>{{team_name}}</option>
+              {% endfor %}
+            </select>
+            <input type="submit" name="button" class="btn btn-primary" value="Transfer Player" >
+          </div>
         </td>
         <td class="text-end">
           <input type="submit" name="button" class="btn btn-warning form-control" value="Remove Player From Team" >

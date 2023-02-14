@@ -83,13 +83,14 @@
   var team_id = "{{team_id}}";
   var id_to_players = JSON.parse('{{id_to_players|tojson}}');
   var play_seq = "{{play_str}}".split(",");
+  var stats_length = {{stats_header|length}};
   // var play_seq = [];
 
   function update_recent_play() {
-    $("#recent_plays_table tr").remove()
+    $("#recent_plays_table tr").remove();
     $.each(play_seq.slice(-10).reverse(), function( key, value ) {
       if(id_to_players.hasOwnProperty(value)){
-        value = id_to_players[value]
+        value = id_to_players[value];
       }
 
       let fade_class = "";
@@ -105,23 +106,21 @@
   }
 
   $(document).ready(function () {
-
     update_recent_play()
-
     $(".play_form").submit(function (event) {
       event.preventDefault();
       if(event.target.elements.namedItem('player_id')){
         play_seq.push(event.target.elements.namedItem('player_id').value);
       }else{
-        let action = event.target.elements.namedItem('button').value
+        let action = event.target.elements.namedItem('button').value;
         if(action == "UNDO"){
-          play_seq.pop()
+          play_seq.pop();
         }else{
           play_seq.push(action);
         }
       }
 
-      var formData = {
+      let formData = {
         play_str: play_seq.join(","),
         game_id: game_id,
         team_id: team_id,
@@ -142,20 +141,28 @@
           $( "#" + value ).prop( "disabled", true );
         });
 
-
         $("#player_stats_table tr").remove()
+        let deleted_player_stats = Array(stats_length).fill(0);
         for(let player_id in data.player_stats){
-          let player_name = id_to_players[player_id]
-          if(player_name == "DELETED PLAYER") continue; 
+          let player_name = id_to_players[player_id];
+          if(player_name == "DELETED PLAYER") {
+            for(let index = 0; index < stats_length; index++){
+              deleted_player_stats[index] += data.player_stats[player_id][index];
+            }
+          }; 
           $("#player_stats_table").append('<tr id="player_stats_' + player_id + '"><th scope="row" class=text-center>' + player_name + '</th></tr>');
           
-          for(let index = 0; index < data.player_stats[player_id].length; index++){
+          for(let index = 0; index < stats_length; index++){
             $("#player_stats_" + player_id).append('<td>' + data.player_stats[player_id][index] + '</td>');
           }
+        } 
+        $("#player_stats_table").append('<tr id="player_stats_DELETED PLAYER"><th scope="row" class=text-center>DELETED PLAYER</th></tr>');
+        
+        for(let index = 0; index < stats_length; index++){
+          $("#player_stats_DELETED PLAYER").append('<td>' + deleted_player_stats[index] + '</td>');
         }
       });
-
-      update_recent_play()
+      update_recent_play();
     });
   });
 </script>

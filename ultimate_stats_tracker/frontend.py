@@ -69,7 +69,6 @@ def record(team_id, game_id):
 
 @APP.route('/list_teams', methods = ["POST", "GET"])
 def list_teams():
-
   err = ""
   if(request.method == "POST"):
     action_type = request.form.get("button")
@@ -126,7 +125,6 @@ def edit_team(team_name):
       api.refresh_globals()
     elif(action_type == "View Stats"):
       pass
-      # return redirect(url_for("view_player_stat", player_name = request.form.get("player_name")))
     elif(action_type == "Rename Team"):
       new_team_name = request.form.get("new_name")
       if(new_team_name in api.teams_to_id):
@@ -174,7 +172,6 @@ def list_games():
       else:
         db_connector.create_game(home_team_id = home_team_id, away_team_id = away_team_id, game_time = game_time, note = note)
     elif(action_type == "Start Record"):
-      print(request.form.get("team_id"))
       return redirect(url_for("record", team_id = request.form.get("team_id"), game_id = request.form.get("game_id")))
     
   return render_template("list_games.html", team_names = api.teams_to_id.keys(), games = db_connector.get_games(), id_to_teams = api.id_to_teams, error = err)

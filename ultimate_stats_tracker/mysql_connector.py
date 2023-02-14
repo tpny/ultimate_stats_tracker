@@ -16,6 +16,38 @@ class MySQLConnector:
   def reset_connection(self):
     self.cnx.close()
     self.cnx = mysql.connector.connect(user = self.user, password = self.password, host = self.host, database = self.database)
+    logger.debug("Resetting MySQL connector")
+
+  def drop_tables(self):
+    cursor = self.cnx.cursor()
+    query = "DROP TABLE PLAYER_STATS;"
+    cursor.execute(query)
+    logger.debug("EXEC: " + cursor.statement)
+    self.cnx.commit()
+
+    cursor = self.cnx.cursor()
+    query = "DROP TABLE PLAYS;"
+    cursor.execute(query)
+    logger.debug("EXEC: " + cursor.statement)
+    self.cnx.commit()
+
+    cursor = self.cnx.cursor()
+    query = "DROP TABLE GAMES;"
+    cursor.execute(query)
+    logger.debug("EXEC: " + cursor.statement)
+    self.cnx.commit()
+    
+    cursor = self.cnx.cursor()
+    query = "DROP TABLE PLAYERS;"
+    cursor.execute(query)
+    logger.debug("EXEC: " + cursor.statement)
+    self.cnx.commit()
+    
+    cursor = self.cnx.cursor()
+    query = "DROP TABLE TEAMS;"
+    cursor.execute(query)
+    logger.debug("EXEC: " + cursor.statement)
+    self.cnx.commit()
 
   def create_tables(self):
     cursor = self.cnx.cursor()
@@ -45,13 +77,6 @@ class MySQLConnector:
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     cursor.close()
-
-    # drop table PLAYER_STATS;
-    # drop table PLAYERS;
-    # drop table PLAYS;
-    # drop table GAMES;
-    # drop table TEAMS;
-    # show tables;
 
   def insert_or_update_play(self, team_id, game_id, plays_str = None, processed = False):
     cursor = self.cnx.cursor()
@@ -133,16 +158,17 @@ class MySQLConnector:
         cursor.execute(query, (player_name, team_id))
         logger.debug("EXEC: " + cursor.statement)
       self.cnx.commit()
-    elif(unhidden):
-      query = "UPDATE PLAYERS SET hidden = FALSE WHERE base_id = %s and team = %s;"
-      cursor.execute(query, (base_id, team_id))
-      logger.debug("EXEC: " + cursor.statement)
-      self.cnx.commit()
     else:
-      query = "INSERT INTO PLAYERS (player_name,team, base_id) VALUES(%s, %s, %s);"
-      cursor.execute(query, (player_name, team_id, base_id))
-      logger.debug("EXEC: " + cursor.statement)
-      self.cnx.commit()
+      if(unhidden):
+        query = "UPDATE PLAYERS SET hidden = FALSE, player_name = %s  WHERE base_id = %s and team = %s;"
+        cursor.execute(query, (player_name, base_id, team_id))
+        logger.debug("EXEC: " + cursor.statement)
+        self.cnx.commit()
+      else:
+        query = "INSERT INTO PLAYERS (player_name,team, base_id) VALUES(%s, %s, %s);"
+        cursor.execute(query, (player_name, team_id, base_id))
+        logger.debug("EXEC: " + cursor.statement)
+        self.cnx.commit()
     cursor.close()
 
   def update_player(self, player_id, player_name = None, team_id = None):

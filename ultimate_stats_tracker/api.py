@@ -59,8 +59,6 @@ def refresh_globals():
       team_id_to_player_ids[team_id].add(player_id)
       team_id_to_player_base_ids[team_id].add(str(player_base_id))
 
-  print(base_players_to_id)
-
 def compute_play_stats(play_seq, players_in_team):
   player_stats = {}
   one_prior = ""
@@ -121,3 +119,25 @@ def api_record():
   db_connector.insert_or_update_play(team_id = team_id, game_id = game_id, plays_str = play_str, processed = False)
   player_stats, invalid_moves = compute_play_stats(play_seq = play_str.split(","), players_in_team = team_id_to_player_ids[team_id])
   return jsonify(player_stats = player_stats, invalid_moves = list(invalid_moves))
+
+@APP.route("/api/exec_sql", methods=["POST"])
+def api_exec_sql():
+  err = ""
+  result = []
+  try:
+    result = db_connector.execute_sql(request.form.get("query"))
+  except mysql.connector.Error as error:
+    err = str(error)
+
+  return jsonify(result = result, error = err)
+
+@APP.route("/api/reset_database", methods=["POST"])
+def api_reset_database():
+  db_connector.drop_tables()
+  db_connector.create_tables()
+  return jsonify(success = "TRUE")
+
+@APP.route("/api/reset_connection", methods=["POST"])
+def api_reset_connection():
+  db_connector.reset_connection()
+  return jsonify(success = "TRUE")
