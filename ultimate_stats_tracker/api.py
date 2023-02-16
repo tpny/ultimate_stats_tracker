@@ -135,9 +135,11 @@ def api_exec_sql():
 def api_reset_database():
   db_connector.drop_tables()
   db_connector.create_tables()
+  refresh_globals()
   return jsonify(success = "TRUE")
 
 @APP.route("/api/reset_connection", methods=["POST"])
 def api_reset_connection():
   db_connector.reset_connection()
+  refresh_globals()
   return jsonify(success = "TRUE")
