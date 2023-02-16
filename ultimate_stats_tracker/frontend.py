@@ -215,10 +215,11 @@ def list_players():
 
 @APP.route('/execute_sql', methods = ["POST", "GET"])
 def execute_sql():
-  api.update_db_player_stats()
-  err = ""
-  result = None
 
+  api.update_db_player_stats()
+
+  result = None
+  err = ""
   if(request.method == "POST"):
     query = request.form.get("query")
     try:
