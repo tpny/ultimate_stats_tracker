@@ -36,6 +36,11 @@ def record(team_id, game_id):
     play_str = play[2]
     plays = play[2].split(",")
     player_stats, invalid_moves = api.compute_play_stats(plays, api.team_id_to_player_ids[team_id])
+  else:
+    invalid_moves.add("GOAL")
+    invalid_moves.add("DEFENSE")
+    invalid_moves.add("DROP")
+    invalid_moves.add("THROW_AWAY")
 
   active_players_in_team = []
   if(team_id in api.team_id_to_player_ids):

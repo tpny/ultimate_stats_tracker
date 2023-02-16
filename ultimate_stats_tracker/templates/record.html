@@ -82,7 +82,7 @@
   var game_id = "{{game_id}}";
   var team_id = "{{team_id}}";
   var id_to_players = JSON.parse('{{id_to_players|tojson}}');
-  var play_seq = "{{play_str}}".split(",");
+  var play_seq = {% if play_str|length != 0 %} "{{play_str}}".split(",") {% else %} [] {% endif %};
   var stats_length = {{stats_header|length}};
   // var play_seq = [];
 
