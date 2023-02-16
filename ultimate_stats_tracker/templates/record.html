@@ -87,7 +87,7 @@
   // var play_seq = [];
 
   function update_recent_play() {
-    console.log(play_seq);
+    // console.log(play_seq);
     $("#recent_plays_table tr").remove();
     $.each(play_seq.slice(-10).reverse(), function( key, value ) {
       if(id_to_players.hasOwnProperty(value)){
