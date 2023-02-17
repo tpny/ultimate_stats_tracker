@@ -13,44 +13,52 @@ class MySQLConnector:
     self.stats_list = stats_list
     self.create_tables()
 
+  def get_cursor(self):
+    try:
+      return self.cnx.cursor()
+    except Exception as e:
+      logger.warning(str(e))
+      self.reset_connection()
+      return self.cnx.cursor()
+
   def reset_connection(self):
     self.cnx.close()
     self.cnx = mysql.connector.connect(user = self.user, password = self.password, host = self.host, database = self.database)
-    logger.debug("Resetting MySQL connector")
+    logger.warning("Resetting MySQL connector")
 
   def drop_tables(self):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "DROP TABLE PLAYER_STATS;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "DROP TABLE PLAYS;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "DROP TABLE GAMES;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "DROP TABLE PLAYERS;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "DROP TABLE TEAMS;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
   def create_tables(self):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "CREATE TABLE IF NOT EXISTS TEAMS ( id int NOT NULL AUTO_INCREMENT, team_name TEXT NOT NULL, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
@@ -79,7 +87,7 @@ class MySQLConnector:
     cursor.close()
 
   def insert_or_update_play(self, team_id, game_id, plays_str = None, processed = False):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(processed and not plays_str):
       query = "UPDATE PLAYS SET processed = TRUE WHERE team = %s and game = %s;"
       cursor.execute(query, (team_id, game_id))
@@ -92,7 +100,7 @@ class MySQLConnector:
     cursor.close()
 
   def create_game(self, home_team_id, away_team_id, game_time = None, note = ""):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(game_time):
       query = "INSERT INTO GAMES (home_team, away_team, game_time, note) VALUES(%s, %s, %s, %s);"
       cursor.execute(query, (home_team_id, away_team_id, game_time, note))
@@ -105,7 +113,7 @@ class MySQLConnector:
     cursor.close()
 
   def update_game(self, game_id, game_time, note):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "UPDATE GAMES SET game_time = %s WHERE id = %s;"
     cursor.execute(query, (game_time, game_id))
     logger.debug("EXEC: " + cursor.statement)
@@ -113,7 +121,7 @@ class MySQLConnector:
     cursor.close()
 
   def remove_game(self, game_id):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "UPDATE PLAYS SET hidden = TRUE WHERE game = %s;"
     cursor.execute(query, (game_id, ))
     logger.debug("EXEC: " + cursor.statement)
@@ -124,7 +132,7 @@ class MySQLConnector:
     cursor.close()
 
   def create_team(self, team_name):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "INSERT INTO TEAMS (team_name) VALUES(%s);"
     cursor.execute(query, (team_name, ))
     logger.debug("EXEC: " + cursor.statement)
@@ -132,7 +140,7 @@ class MySQLConnector:
     cursor.close()
 
   def update_team(self, team_id, team_name):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "UPDATE TEAMS SET team_name = %s WHERE id = %s;"
     cursor.execute(query, (team_name, team_id))
     logger.debug("EXEC: " + cursor.statement)
@@ -140,7 +148,7 @@ class MySQLConnector:
     cursor.close()
 
   def remove_team(self, team_id):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "UPDATE TEAMS SET hidden = TRUE WHERE id = %s;"
     cursor.execute(query, (team_id, ))
     logger.debug("EXEC: " + cursor.statement)
@@ -148,7 +156,7 @@ class MySQLConnector:
     cursor.close()
 
   def create_player(self, player_name, team_id = None, base_id = None, unhidden = False):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(not base_id): # create base player
       query = "INSERT INTO PLAYERS (player_name) VALUES(%s);"
       cursor.execute(query, (player_name, ))
@@ -172,7 +180,7 @@ class MySQLConnector:
     cursor.close()
 
   def update_player(self, player_id, player_name = None, team_id = None):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(player_name):
       query = "UPDATE PLAYERS SET player_name = %s WHERE id = %s OR base_id = %s;"
       cursor.execute(query, (player_name, player_id, player_id))
@@ -185,7 +193,7 @@ class MySQLConnector:
     cursor.close()
 
   def remove_player(self, player_id, is_base = False):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(is_base): # hide base player and all its stats
       query = "UPDATE PLAYERS SET hidden = TRUE WHERE base_id = %s or id = %s;"
       cursor.execute(query, (player_id, player_id))
@@ -201,7 +209,7 @@ class MySQLConnector:
 
 
   def get_players(self, team_id = None):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(team_id):
       query = "SELECT * FROM PLAYERS WHERE team = %s;"
       cursor.execute(query, (team_id, ))
@@ -215,7 +223,7 @@ class MySQLConnector:
     return data
 
   def get_teams(self):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "SELECT * FROM TEAMS;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
@@ -224,7 +232,7 @@ class MySQLConnector:
     return data
 
   def get_plays(self, team_id = None, game_id = None, unprocessed = False):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
 
     if(team_id or game_id or unprocessed):
       query_str = []
@@ -254,7 +262,7 @@ class MySQLConnector:
     return data
 
   def get_games(self):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     query = "SELECT * FROM GAMES;"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
@@ -263,7 +271,7 @@ class MySQLConnector:
     return data
 
   def get_player_stats(self, game_id = None, player_id = None, team_id = None):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     if(game_id or player_id or team_id):
       query_str = []
       query_data = []
@@ -288,7 +296,7 @@ class MySQLConnector:
     return data
 
   def insert_or_update_player_stats(self, player_stats, team_id, game_id):
-    cursor = self.cnx.cursor()
+    cursor = self.get_cursor()
     stats_str = ", ".join(map(lambda stats: "stats_{}".format(stats), self.stats_list))
     value_str = ", ".join(map(lambda stats: "%s".format(stats), self.stats_list))
 
