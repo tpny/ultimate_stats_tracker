@@ -239,14 +239,14 @@ def execute_sql():
 
   return render_template("execute_sql.html", header = header, table = table, error = err)
 
-@APP.route('/view_team_stat/<team_name>', methods = ["POST", "GET"])
-def view_team_stat(team_name):
-  return "TODO"
+@APP.route('/view_team_stats/<team_id>', methods = ["POST", "GET"])
+def view_team_stats(team_id):
+  return str(db_connector.get_player_stats(game_id = None, player_id = None, team_id = team_id))
 
-@APP.route('/view_player_stat/<player_name>', methods = ["POST", "GET"])
-def view_player_stat(player_name):
-  return "TODO"
+@APP.route('/view_player_stats/<player_name>', methods = ["POST", "GET"])
+def view_player_stats(player_name):
+  return str(db_connector.get_player_stats(game_id = None, player_id = api.base_players_to_id[player_name], team_id = None))
 
-@APP.route('/view_game_stat/<game_id>', methods = ["POST", "GET"])
-def view_game_stat(game_id):
-  return "TODO"
+@APP.route('/view_game_stats/<game_id>', methods = ["POST", "GET"])
+def view_game_stats(game_id):
+  return str(db_connector.get_player_stats(game_id = game_id, player_id = None, team_id = None))

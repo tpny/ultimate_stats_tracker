@@ -30,13 +30,15 @@
     </tr>
     {% for team_name in teams_to_id %}
     <tr>
-      <form action="" method="post" class="form-control">
         <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{team_name}}"></th>
         <td><input type="text" readonly class="form-control-plaintext" value="{{teams_to_id[team_name]}}"></td>
+      <form action="{{url_for('view_team_stats', team_id = teams_to_id[team_name])}}" method="post" class="form-control">
         <td>
           <input type="hidden" name="team_name" value="{{team_name}}" >
           <input type="submit" name="button" class="btn btn-primary form-control" value="View Stats" >
         </td>
+      </form>
+      <form action="" method="post" class="form-control">
         <td>
           <input type="hidden" name="team_name" value="{{team_name}}" >
           <input type="submit" name="button" class="btn btn-primary form-control" value="Edit Team" >

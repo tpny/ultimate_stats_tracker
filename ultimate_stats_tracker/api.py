@@ -128,7 +128,6 @@ def api_exec_sql():
     result = db_connector.execute_sql(request.form.get("query"))
   except mysql.connector.Error as error:
     err = str(error)
-
   return jsonify(result = result, error = err)
 
 @APP.route("/api/reset_database", methods=["POST"])

@@ -35,7 +35,7 @@
           <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" name="player_name" value="{{player_name}}"></th>
           <td><input type="text" readonly class="form-control-plaintext" name="player_id" value="{{player_id}}"></td>
         </form>
-        <form action="" method="post" class="form-control">
+        <form action="{{url_for('view_player_stats', player_name = player_name)}}" method="post" class="form-control">
           <td>
             <input type="hidden" name="player_id" value="{{player_id}}">
             <input type="submit" name="button" class="btn btn-primary" value="View Stats" >

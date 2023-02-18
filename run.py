@@ -3,7 +3,7 @@ import logging
 
 if __name__ == "__main__":
 
-  logger.setLevel(logging.INFO)
+  logger.setLevel(logging.DEBUG)
 
   logger.debug("get_players: " + str(db_connector.get_players()))
   logger.debug("get_teams: " + str(db_connector.get_teams()))
