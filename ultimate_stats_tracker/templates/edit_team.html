@@ -7,57 +7,44 @@
     {{error}}
 </div>
 <h1 class="text-center">{{curr_team_name}}</h1>
-<form action="" method="post" class="row text-end d-flex justify-content-end">
-  <div class="col-auto">
+
+<form action="" method="post" class="form-control">
+  <div class="input-group">
     <input type="text" name="new_name" placeholder="New Team Name" class="form-control" required>
-  </div>
-  <div class="col-auto">
     <input type="submit" name="button" class="btn btn-primary" value="Rename Team" >
   </div>
+</form> 
+
+{% include 'create_player.html'%}
+
+<form action="" method="post" class="form-control w-10">
+  <th scope="row" colspan="4">
+    <input type="hidden" name="button" value="Add Existing Player">
+    <div class="input-group">
+      <select class="form-select" name="player_name">
+        {% for player_name  in base_players %}
+        <option value="{{player_name}}" >{{player_name}}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary" type="submit">Add Existing Player</button>
+    </div>
+  </th>
+  <td></td>
+  <td></td>
 </form>
+
+
 <div class="table-responsive">
   <table class="table">
-    <thead>
+     <thead>
       <tr>
-      <th scope="col">Player Name</th>
-      <th scope="col">Player ID</th>
-      <th scope="col"></th>
-      <th scope="col"></th>
-      <th scope="col"></th>
+        <th scope="col">Player Name</th>
+        <th scope="col">Player ID</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
-    </thead>
+    </thead> 
     <tbody class="table-group-divider">
-    <tr>
-    <form action="" method="post" class="form-control">
-      <th scope="row">
-        <input type="text" name="player_name" class="form-control" placeholder="" required>
-      </th>
-      <td></td>
-      <td>
-        <input type="submit" name="button" class="btn btn-primary form-control" value="Create New Player" >
-      </td>
-      <td></td>
-      <td></td>
-    </form>
-    </tr>
-    <tr>
-    <form action="" method="post" class="form-control">
-      <th scope="row">
-        <select class="form-select" name="player_name">
-          {% for player_name  in base_players %}
-          <option value="{{player_name}}" >{{player_name}}</option>
-          {% endfor %}
-        </select>
-      </th>
-      <td></td>
-      <td>
-        <input type="submit" name="button" class="btn btn-primary form-control" value="Add Existing Player" >
-      </td>
-      <td></td>
-      <td></td>
-    </form>
-    </tr>
-
     {% for player_id, player_name, transferable_team in team_players_info %}
     <tr>
       <form action="" method="post"  class="form-control">
@@ -66,16 +53,6 @@
         <td><input type="text" readonly class="form-control-plaintext" value="{{player_id}}"></td>
         <td>
           <input type="submit" name="button" class="btn btn-primary form-control" value="View Stats" >
-        </td>
-        <td class="d-flex flex-nowrap">
-          <div class="input-group">
-            <select class="form-select form" name="new_team">
-              {% for team_name in transferable_team %}
-              <option value="{{team_name}}" {% if team_name == curr_team_name %} selected {% endif %}>{{team_name}}</option>
-              {% endfor %}
-            </select>
-            <input type="submit" name="button" class="btn btn-primary" value="Transfer Player" >
-          </div>
         </td>
         <td class="text-end">
           <input type="submit" name="button" class="btn btn-warning form-control" value="Remove Player From Team" >
@@ -87,12 +64,3 @@
   </table>
 </div>
 {% endblock %}
-
-
-  <!--     <td>
-        <form action="" method="post">
-          <input type="hidden" name="player_name" value="{{player}}" >
-          <input type="text" name="new_name" placeholder="" required>
-          <input type="submit" name="button" class="btn btn-primary" value="Rename Player" >
-        </form>
-      </td> -->

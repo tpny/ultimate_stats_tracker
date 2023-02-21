@@ -5,6 +5,19 @@
 <div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">
     {{error}}
 </div>
+<hr>
+
+<form action="{{url_for('api_add_player_csv')}}" enctype="multipart/form-data" method="post" class="form-control">
+  <div class="input-group">
+    <label class="input-group-text" for="player_name_csv">CSV Upload</label>
+    <input type="file" name="player_csv" class="form-control" id="player_name_csv" required>
+    <input type="submit" name="button" class="btn btn-primary" value="Upload CSV">
+  </div>
+</form>
+
+{% include 'create_player.html'%}
+
+<hr>
 <div class="table-responsive">
   <table class="table">
     <thead>
@@ -16,21 +29,8 @@
       </tr>
     </thead>
     <tbody class="table-group-divider">
-      <tr>
-      <form action="" method="post" class="form-control">
-        <th scope="row">
-          <input type="text" name="player_name" class="form-control" placeholder="" required>
-        </th>
-        <td></td>
-        <td></td>
-        <td>
-          <input type="submit" name="button" class="btn btn-primary  form-control" value="Create New Player" >
-        </td>
-        <td></td>
-      </form>
-      </tr>
       {% for player_name, player_id in base_players_to_id.items() %}
-      <tr>
+      <tr class="align-middle">
         <form action="" method="post" class="form-control">
           <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" name="player_name" value="{{player_name}}"></th>
           <td><input type="text" readonly class="form-control-plaintext" name="player_id" value="{{player_id}}"></td>
@@ -51,7 +51,7 @@
             </div>
           </td>
         </form>
-        <form action="" method="post" class="form-control">
+        <form action="" method="post" class="form-control unconfirmed">
           <td class="text-end">
             <input type="hidden" name="player_id" value="{{player_id}}">
             <input type="submit" name="button" class="btn btn-danger" value="Remove Player" >
@@ -62,4 +62,4 @@
     </tbody>
   </table>
 </div>
-{% endblock %}  
+{% endblock %}

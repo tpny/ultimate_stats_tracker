@@ -1,0 +1,22 @@
+<form action="" method="post" class="form-control">
+  <div class="row">
+    <input type="hidden" name="button" value="Create New Player">
+    <div class="form-floating">
+      <input type="text" class="form-control" id="new_player_name" name="player_name" placeholder='Enter New Player Name' required>
+      <label id="new_player_name">Enter New Player Name</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="input-group">
+      <div class="input-group-text">
+        <input class="form-check-input" type="radio" name="player_gender" id="male_radio" value="male" required>
+        <label class="form-check-label" for="male_radio">Male</label>
+      </div>
+      <div class="input-group-text">
+        <input class="form-check-input" type="radio" name="player_gender" id="female_radio" value="female" required>
+        <label class="form-check-label" for="female_radio">Female</label>
+      </div>
+      <button class="btn btn-primary form-control" type="submit">Create New Player</button>
+    </div>
+  </div>
+</form>

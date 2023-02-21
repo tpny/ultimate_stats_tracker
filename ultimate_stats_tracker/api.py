@@ -1,8 +1,20 @@
 from flask import render_template, request, redirect, url_for, jsonify
 import mysql
+import pandas as pd
 
 from ultimate_stats_tracker import APP, db_connector, Stats, Actions, logger
-from ultimate_stats_tracker import id_to_teams, teams_to_id, id_to_players, team_id_to_player_ids, team_id_to_player_base_ids, base_players_to_id, hidden_players_ids
+
+
+#static
+id_to_teams = {}
+teams_to_id = {}
+id_to_players = {}
+id_to_player_gender = {}
+team_id_to_player_ids = {}
+team_id_to_player_base_ids = {}
+base_players_to_id = {}
+hidden_players_ids = set()
+
 
 def update_db_player_stats():
   unprocessed_plays = db_connector.get_plays(unprocessed = True)
@@ -31,13 +43,15 @@ def refresh_globals():
   global team_id_to_player_base_ids
   global base_players_to_id
   global hidden_players_ids
+  global id_to_player_gender
   id_to_players = {}
   team_id_to_player_ids = {}
   team_id_to_player_base_ids = {}
   base_players_to_id = {}
+  id_to_player_gender = {}
   hidden_players_ids = set()
 
-  for player_id, player_name, team_id, player_base_id, hidden in db_connector.get_players():
+  for player_id, player_name, player_gender, team_id, player_base_id, hidden in db_connector.get_players():
     player_id = str(player_id)
 
     if(hidden):
@@ -47,6 +61,7 @@ def refresh_globals():
       base_players_to_id[player_name] = player_id
 
     id_to_players[player_id] = player_name
+    id_to_player_gender[player_id] = player_gender
 
     if(team_id): # this player is associated with a team
       team_id = str(team_id)
@@ -141,4 +156,16 @@ def api_reset_database():
 def api_reset_connection():
   db_connector.reset_connection()
   refresh_globals()
+  return jsonify(success = "TRUE")
+
+@APP.route("/api/add_player_csv", methods=["POST"])
+def api_add_player_csv():
+  file = request.files['player_csv']
+  lines = file.read().decode("utf-8").split()
+
+  header = lines[0]
+  print(header)
+  for line in lines[1:]:
+    print(line)
+  
   return jsonify(success = "TRUE")

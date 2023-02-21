@@ -5,15 +5,15 @@
 <div {% if error|length == 0 %} hidden {% endif %}class="alert alert-warning" role="alert">
     {{error}}
 </div>
-<div class="table-responsive">
+<!-- <div class="table-responsive">
   <table class="table">
     <thead>
       <tr>
       <th scope="col">Game ID</th>
       <th scope="col">Home Team</th>
+      <th scope="col">Score</th>
       <th scope="col">Away Team</th>
       <th scope="col">Game Time</th>
-      <th scope="col">Note</th>
       <th scope="col"></th>
       </tr>
     </thead>
@@ -28,6 +28,7 @@
             {% endfor %}
           </select>
         </td>
+        <td></td>
         <td>
           <select name="away_team" class="form-select">
             {% for team_name in team_names %}
@@ -39,14 +40,11 @@
           <input type="datetime-local" class="form-control" name="game_time" required>
         </td>
         <td>
-          <input type="text" class="form-control" name="note" placeholder="Additonal notes">
-        </td>
-        <td>
           <input type="submit" name="button" class="btn btn-primary form-control" value="Create Game" >
         </td>
       </form>
     </tr>
-    {% for game_id, home_team_id, away_team_id, note, game_time, hidden in games %}
+    {% for game_id, home_team_id, home_team_score, away_team_id, away_team_score, game_time, hidden in games %}
     <tr {% if hidden == TRUE %} hidden {% endif %}>
       <th scope="row"><input type="text" readonly class="form-control-plaintext fw-bold" value="{{game_id}}"></th>
       <td>
@@ -59,6 +57,10 @@
           </div>
         </form>
       </td>
+      <td >
+        <div class="d-flex justify-content-around">
+          <div>1</div><div> : </div><div>11</div>
+      </td>
       <td>
         <form action="" method="post" >
           <input type="hidden" name="game_id" value="{{game_id}}" >
@@ -70,7 +72,6 @@
         </form>
       </td>
       <td><input type="text" readonly class="form-control-plaintext" value="{{game_time}}"></td>
-      <td><input type="text" readonly class="form-control-plaintext" value="{{note}}"></td>
       <td>
         <form action="{{url_for('view_game_stats', game_id = game_id)}}" method="post" >
           <input type="submit" name="button" class="btn btn-primary form-control" value="Game Stats" >
@@ -80,5 +81,110 @@
     {% endfor %}
     </tbody>
   </table>
+</div> -->
+<div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-3">
+  <div class="col">
+    <div class="card my-3">
+      <div class="card-body">
+        <a href="#" class="stretched-link text-decoration-none" id="create_game_card" data-bs-toggle="modal" data-bs-target="#create_game_modal" ><h5 class="card-title">Create Game</h5></a>
+        <p class="card-text">Click this card to create a new game</p>
+      </div>
+    </div>
+  </div>
+  {% for game_id, home_team_id, home_team_score, away_team_id, away_team_score, game_time, hidden in games %}
+  <div class="col">
+    <div class="card my-3">
+      <div class="card-body">
+        <a href="#" class="stretched-link text-decoration-none game_card" data-bs-toggle="modal" data-bs-target="#game_modal">
+          <h5 class="card-title">{{id_to_teams[home_team_id|string]}} vs {{id_to_teams[away_team_id|string]}}</h5>
+          <input type="hidden" name="game_id" value="{{game_id}}">
+          <input type="hidden" name="home_team_name" value="{{id_to_teams[home_team_id|string]}}">
+          <input type="hidden" name="away_team_name" value="{{id_to_teams[away_team_id|string]}}">
+          <input type="hidden" name="game_time" value="{{game_time}}">
+        </a>
+        <p class="card-text">{{home_team_score}} : {{away_team_score}}</p>
+      </div>
+      <div class="card-footer text-muted">
+        {{game_time}}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
+
+<div class="modal fade" id="game_modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id = "game_modal_title">Select A Team to Record</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" >
+        <form action="" method="post">
+          <input type="hidden" id = "game_modal_game_id" name="game_id" value="" >
+          <input type="hidden" name="button" value="Start Record">
+          <div class="input-group">
+            <input type="submit" id = "game_modal_home_team_name" class="btn btn-success py-5 form-control" name="team_name" value="" >
+            <input type="submit" id = "game_modal_away_team_name" class="btn btn-warning py-5 form-control" name="team_name" value="" >
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" id="game_modal_footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="create_game_modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" >Create Game</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="new_game_form" action="" method="post" class="form-control">
+          <select name="home_team" class="form-select my-1">
+            {% for team_name in team_names %}
+            <option value="{{team_name}}">{{team_name}}</option>
+            {% endfor %}
+          </select>
+          <select name="away_team" class="form-select my-1">
+            {% for team_name in team_names %}
+            <option value="{{team_name}}">{{team_name}}</option>
+            {% endfor %}
+          </select>
+          <input id="datetime_select" type="datetime-local" class="form-control" name="game_time" required>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <input type="submit" name="button" form="new_game_form" class="btn btn-primary" value="Create Game" >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  $("#create_game_card").click(function() {
+    date = new Date();
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    $("#datetime_select").val(date.toJSON().slice(0,16));
+  });
+
+  $(".game_card").click(function(event) {
+    let game_id = $(event.target).children("input[name=game_id]").val();
+    let home_team_name = $(event.target).children("input[name=home_team_name]").val();
+    let away_team_name = $(event.target).children("input[name=away_team_name]").val();
+    let game_time = $(event.target).children("input[name=game_time]").val();
+
+    $("#game_modal_footer").text("Played on: " + game_time);
+    $("#game_modal_game_id").val(game_id);
+    $("#game_modal_home_team_name").val(home_team_name);
+    $("#game_modal_away_team_name").val(away_team_name);
+  });
+
+</script>
 {% endblock %}

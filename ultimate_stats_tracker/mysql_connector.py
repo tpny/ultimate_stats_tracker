@@ -64,17 +64,17 @@ class MySQLConnector:
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     
-    query = "CREATE TABLE IF NOT EXISTS PLAYERS ( id int NOT NULL AUTO_INCREMENT, player_name TEXT NOT NULL, team_id int, base_id int, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (team_id) REFERENCES TEAMS(id), FOREIGN KEY (base_id) REFERENCES PLAYERS(id));"
+    query = "CREATE TABLE IF NOT EXISTS PLAYERS ( id int NOT NULL AUTO_INCREMENT, player_name TEXT NOT NULL, player_gender CHAR(10) NOT NULL, team_id int, base_id int, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (team_id) REFERENCES TEAMS(id), FOREIGN KEY (base_id) REFERENCES PLAYERS(id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
-    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team_id int NOT NULL, away_team_id int NOT NULL, note TEXT, game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (home_team_id) REFERENCES TEAMS(id), FOREIGN KEY (away_team_id) REFERENCES TEAMS(id));"
+    query = "CREATE TABLE IF NOT EXISTS GAMES ( id int NOT NULL AUTO_INCREMENT, home_team_id int NOT NULL, home_team_score int NOT NULL DEFAULT 0, away_team_id int NOT NULL, away_team_score int NOT NULL DEFAULT 0, game_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (id), FOREIGN KEY (home_team_id) REFERENCES TEAMS(id), FOREIGN KEY (away_team_id) REFERENCES TEAMS(id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
 
-    query = "CREATE TABLE IF NOT EXISTS PLAYS (team_id int NOT NULL, game_id int NOT NULL, play MEDIUMTEXT, processed BOOLEAN NOT NULL DEFAULT FALSE, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (team_id, game_id), FOREIGN KEY (team_id) REFERENCES TEAMS(id), FOREIGN KEY (game_id) REFERENCES GAMES(id));"
+    query = "CREATE TABLE IF NOT EXISTS PLAYS (team_id int NOT NULL, game_id int NOT NULL, play TEXT, processed BOOLEAN NOT NULL DEFAULT FALSE, hidden BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (team_id, game_id), FOREIGN KEY (team_id) REFERENCES TEAMS(id), FOREIGN KEY (game_id) REFERENCES GAMES(id));"
     cursor.execute(query)
     logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
@@ -99,20 +99,20 @@ class MySQLConnector:
     self.cnx.commit()
     cursor.close()
 
-  def create_game(self, home_team_id, away_team_id, game_time = None, note = ""):
+  def create_game(self, home_team_id, away_team_id, game_time = None):
     cursor = self.get_cursor()
     if(game_time):
-      query = "INSERT INTO GAMES (home_team_id, away_team_id, game_time, note) VALUES(%s, %s, %s, %s);"
-      cursor.execute(query, (home_team_id, away_team_id, game_time, note))
+      query = "INSERT INTO GAMES (home_team_id, away_team_id, game_time) VALUES(%s, %s, %s);"
+      cursor.execute(query, (home_team_id, away_team_id, game_time))
       logger.debug("EXEC: " + cursor.statement)
     else:
-      query = "INSERT INTO GAMES (home_team_id, away_team_id, note) VALUES(%s, %s, %s);"
-      cursor.execute(query, (home_team_id, away_team_id, note))
+      query = "INSERT INTO GAMES (home_team_id, away_team_id) VALUES(%s, %s);"
+      cursor.execute(query, (home_team_id, away_team_id))
       logger.debug("EXEC: " + cursor.statement)
     self.cnx.commit()
     cursor.close()
 
-  def update_game(self, game_id, game_time, note):
+  def update_game(self, game_id, game_time):
     cursor = self.get_cursor()
     query = "UPDATE GAMES SET game_time = %s WHERE id = %s;"
     cursor.execute(query, (game_time, game_id))
@@ -155,15 +155,15 @@ class MySQLConnector:
     self.cnx.commit()
     cursor.close()
 
-  def create_player(self, player_name, team_id = None, base_id = None, unhidden = False):
+  def create_player(self, player_name, player_gender = None, team_id = None, base_id = None, unhidden = False):
     cursor = self.get_cursor()
     if(not base_id): # create base player
-      query = "INSERT INTO PLAYERS (player_name) VALUES(%s);"
-      cursor.execute(query, (player_name, ))
+      query = "INSERT INTO PLAYERS (player_name, player_gender) VALUES(%s, %s);"
+      cursor.execute(query, (player_name, player_gender))
       logger.debug("EXEC: " + cursor.statement)
       if(team_id):
-        query = "INSERT INTO PLAYERS (player_name , team_id, base_id) VALUES(%s, %s, LAST_INSERT_ID());"
-        cursor.execute(query, (player_name, team_id))
+        query = "INSERT INTO PLAYERS (player_name, player_gender, team_id, base_id) VALUES(%s, %s, %s, LAST_INSERT_ID());"
+        cursor.execute(query, (player_name, player_gender, team_id))
         logger.debug("EXEC: " + cursor.statement)
       self.cnx.commit()
     else:
@@ -173,8 +173,8 @@ class MySQLConnector:
         logger.debug("EXEC: " + cursor.statement)
         self.cnx.commit()
       else:
-        query = "INSERT INTO PLAYERS (player_name, team_id, base_id) VALUES(%s, %s, %s);"
-        cursor.execute(query, (player_name, team_id, base_id))
+        query = "INSERT INTO PLAYERS (player_name, player_gender, team_id, base_id) VALUES(%s, %s, %s, %s);"
+        cursor.execute(query, (player_name, player_gender, team_id, base_id))
         logger.debug("EXEC: " + cursor.statement)
         self.cnx.commit()
     cursor.close()

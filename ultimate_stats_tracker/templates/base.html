@@ -1,25 +1,42 @@
 <!doctype html>
 <html>
   <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script type='text/javascript' src="{{ url_for('static', filename='js/bootstrap.bundle.js')}}"></script>
     <script type='text/javascript' src="{{ url_for('static', filename='js/jquery-3.6.3.js')}}"></script>
     <title>{% block title %}{% endblock %}</title>
+    <style>
+      html { font-size: 30px; }
+    </style>
   </head>
-  <div class="container" {% block hide_header %}{% endblock %}>
-    <header class="d-flex justify-content-center py-2">
-      <ul class="nav nav-pills">
-        <li class="nav-item"><a href="{{url_for('index')}}" class="nav-link {% block index_active %}{% endblock %}" aria-current="page">Home</a></li>
-        <li class="nav-item"><a href="{{url_for('list_players')}}" class="nav-link {% block list_players_active %}{% endblock %}">{% block list_manage_player %}Manage Players{% endblock %}</a></li>
-        <li class="nav-item"><a href="{{url_for('list_teams')}}" class="nav-link {% block list_teams_active %}{% endblock %}">{% block list_manage_team %}Manage Teams{% endblock %}</a></li>
-        <li class="nav-item"><a href="{{url_for('list_games')}}" class="nav-link {% block list_games_active %}{% endblock %}">{% block list_manage_game %}Manage Games{% endblock %}</a></li>
-        <li class="nav-item"><a href="{{url_for('execute_sql')}}" class="nav-link {% block list_sql_active %}{% endblock %}">MySQL</a></li>
-      </ul>
-    </header>
-    <br>
-    <hr>
-    <br>
-  </div>
+  <nav class="navbar navbar-expand-me navbar-dark bg-dark {% block hide_header %}{% endblock %}" aria-label="Navbar">
+    <div class="container">
+      <a class="navbar-brand" href="{{url_for('index')}}">Stats Tracker</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar_items" aria-controls="navbar_items" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar_items">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a href="{{url_for('index')}}" class="nav-link {% block index_active %}{% endblock %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{url_for('list_players')}}" class="nav-link {% block list_players_active %}{% endblock %}">{% block list_manage_player %}Manage Players{% endblock %}</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{url_for('list_teams')}}" class="nav-link {% block list_teams_active %}{% endblock %}">{% block list_manage_team %}Manage Teams{% endblock %}</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{url_for('list_games')}}" class="nav-link {% block list_games_active %}{% endblock %}">{% block list_manage_game %}Manage Games{% endblock %}</a>
+          </li>
+          <li class="nav-item">
+            <a href="{{url_for('execute_sql')}}" class="nav-link {% block list_sql_active %}{% endblock %}">MySQL</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
   <body>
     <div class="container" >{% block content %}{% endblock %}</div>
   </body>
