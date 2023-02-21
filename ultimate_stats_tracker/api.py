@@ -1,6 +1,5 @@
 from flask import render_template, request, redirect, url_for, jsonify
 import mysql
-import pandas as pd
 
 from ultimate_stats_tracker import APP, db_connector, Stats, Actions, logger
 
